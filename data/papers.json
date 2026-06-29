@@ -1,0 +1,54 @@
+[
+  {
+    "paper_id": "P1",
+    "short_name": "DETR",
+    "title": "End-to-End Object Detection with Transformers",
+    "year": 2020,
+    "arxiv_id": "2005.12872",
+    "file_name": "detr.pdf",
+    "file_path": "data/pdfs/detr.pdf",
+    "dataset": "COCO",
+    "task": "Object Detection",
+    "method_family": "DETR",
+    "language": "English"
+  },
+  {
+    "paper_id": "P2",
+    "short_name": "Deformable DETR",
+    "title": "Deformable DETR: Deformable Transformers for End-to-End Object Detection",
+    "year": 2020,
+    "arxiv_id": "2010.04159",
+    "file_name": "deformable_detr.pdf",
+    "file_path": "data/pdfs/deformable_detr.pdf",
+    "dataset": "COCO",
+    "task": "Object Detection",
+    "method_family": "DETR",
+    "language": "English"
+  },
+  {
+    "paper_id": "P3",
+    "short_name": "Conditional DETR",
+    "title": "Conditional DETR for Fast Training Convergence",
+    "year": 2021,
+    "arxiv_id": "2108.06152",
+    "file_name": "conditional_detr.pdf",
+    "file_path": "data/pdfs/conditional_detr.pdf",
+    "dataset": "COCO",
+    "task": "Object Detection",
+    "method_family": "DETR",
+    "language": "English"
+  },
+  {
+    "paper_id": "P4",
+    "short_name": "DAB-DETR",
+    "title": "DAB-DETR: Dynamic Anchor Boxes are Better Queries for DETR",
+    "year": 2022,
+    "arxiv_id": "2201.12329",
+    "file_name": "dab_detr.pdf",
+    "file_path": "data/pdfs/dab_detr.pdf",
+    "dataset": "COCO",
+    "task": "Object Detection",
+    "method_family": "DETR",
+    "language": "English"
+  }
+]
