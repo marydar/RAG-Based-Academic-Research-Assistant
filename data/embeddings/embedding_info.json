@@ -1,0 +1,7 @@
+{
+  "model_name": "intfloat/multilingual-e5-small",
+  "embedding_count": 127,
+  "embedding_dimension": 384,
+  "normalized": true,
+  "max_length": 512
+}
