@@ -1,95 +1,167 @@
-"""Validate generated paper chunks."""
-
-import json
+import sys
 from pathlib import Path
+
+import numpy as np
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
 
-CHUNKS_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "chunks"
-    / "all_chunks.json"
+from src.retriever import SemanticRetriever
+
+
+question_1 = "What AP does DETR achieve on COCO?"
+question_2 = "What is the capital city of Japan?"
+
+
+retriever = SemanticRetriever()
+
+embedding_1 = (
+    retriever.embedding_service.encode_query(
+        question_1
+    )
 )
 
-CHUNK_SIZE = 600
-CHUNK_OVERLAP = 100
+embedding_2 = (
+    retriever.embedding_service.encode_query(
+        question_2
+    )
+)
 
+cosine_similarity = float(
+    np.dot(
+        embedding_1,
+        embedding_2,
+    )
+)
 
-def main():
-    """Validate all generated chunks."""
-
-    if not CHUNKS_PATH.exists():
-        raise FileNotFoundError(
-            f"Chunks file not found: {CHUNKS_PATH}"
+maximum_difference = float(
+    np.max(
+        np.abs(
+            embedding_1 - embedding_2
         )
+    )
+)
 
-    with CHUNKS_PATH.open(
-        "r",
-        encoding="utf-8",
-    ) as file:
-        chunks = json.load(file)
+print()
+print("=" * 70)
+print("QUERY EMBEDDING CHECK")
+print("=" * 70)
 
-    if not chunks:
-        raise ValueError("No chunks were generated.")
+print(
+    f"Cosine similarity between questions: "
+    f"{cosine_similarity:.8f}"
+)
 
-    chunk_ids = set()
-    paper_ids = set()
+print(
+    f"Maximum vector difference: "
+    f"{maximum_difference:.8f}"
+)
 
-    for chunk in chunks:
-        chunk_id = chunk["chunk_id"]
-
-        if chunk_id in chunk_ids:
-            raise ValueError(
-                f"Duplicate chunk ID: {chunk_id}"
-            )
-
-        chunk_ids.add(chunk_id)
-        paper_ids.add(chunk["paper_id"])
-
-        if not chunk["text"].strip():
-            raise ValueError(
-                f"Empty chunk: {chunk_id}"
-            )
-
-        if chunk["token_count"] > CHUNK_SIZE:
-            raise ValueError(
-                f"Chunk exceeds token limit: "
-                f"{chunk_id}"
-            )
-
-        if chunk["token_count"] <= 0:
-            raise ValueError(
-                f"Invalid token count: {chunk_id}"
-            )
-
-        if (
-            chunk["page_end"]
-            < chunk["page_start"]
-        ):
-            raise ValueError(
-                f"Invalid page range: {chunk_id}"
-            )
-
-    expected_papers = {
-        "P1",
-        "P2",
-        "P3",
-        "P4",
-    }
-
-    if paper_ids != expected_papers:
-        raise ValueError(
-            f"Unexpected paper IDs: {paper_ids}"
-        )
-
-    print(f"Total chunks: {len(chunks)}")
-    print(f"Maximum token count: {max(c['token_count'] for c in chunks)}")
-    print(f"Minimum token count: {min(c['token_count'] for c in chunks)}")
-    print(f"Papers: {', '.join(sorted(paper_ids))}")
-    print("All chunks are valid.")
+print(
+    "Embeddings are identical:",
+    np.allclose(
+        embedding_1,
+        embedding_2,
+        atol=1e-7,
+    ),
+)
 
 
-if __name__ == "__main__":
-    main()
+results_1 = retriever.search(
+    question_1,
+    top_k=3,
+)
+
+results_2 = retriever.search(
+    question_2,
+    top_k=3,
+)
+
+
+print()
+print("=" * 70)
+print("QUESTION 1 RESULTS")
+print("=" * 70)
+
+for result in results_1:
+    print(
+        result["rank"],
+        result["chunk_id"],
+        result["paper_id"],
+        result["section"],
+        result["chunk_type"],
+        result["page_start"],
+        result["page_end"],
+        f"{result['distance']:.8f}",
+    )
+
+
+print()
+print("=" * 70)
+print("QUESTION 2 RESULTS")
+print("=" * 70)
+
+for result in results_2:
+    print(
+        result["rank"],
+        result["chunk_id"],
+        result["paper_id"],
+        result["section"],
+        result["chunk_type"],
+        result["page_start"],
+        result["page_end"],
+        f"{result['distance']:.8f}",
+    )
+
+
+ids_1 = [
+    result["chunk_id"]
+    for result in results_1
+]
+
+ids_2 = [
+    result["chunk_id"]
+    for result in results_2
+]
+
+distances_1 = [
+    round(result["distance"], 8)
+    for result in results_1
+]
+
+distances_2 = [
+    round(result["distance"], 8)
+    for result in results_2
+]
+
+
+print()
+print("=" * 70)
+print("FINAL CHECK")
+print("=" * 70)
+
+if np.allclose(
+    embedding_1,
+    embedding_2,
+    atol=1e-7,
+):
+    print(
+        "[FAIL] Different questions produced "
+        "the same embedding."
+    )
+
+elif (
+    ids_1 == ids_2
+    and distances_1 == distances_2
+):
+    print(
+        "[FAIL] ChromaDB returned exactly "
+        "the same results and distances."
+    )
+
+else:
+    print(
+        "[PASS] Query embeddings and retrieval "
+        "results are different."
+    )

@@ -3,6 +3,7 @@
 <!-- SECTION: front_matter | PAGES: 1-1 -->
 ## Front Matter
 
+<!-- PAGE 1 -->
 ## DEFORMABLE DETR: DEFORMABLE TRANSFORMERS FOR END-TO-END OBJECT DETECTION
 
 Xizhou Zhu 1 ∗ , Weijie Su 2 ∗‡ , Lewei Lu 1 , Bin Li 2 , Xiaogang Wang 1 , 3 , Jifeng Dai 1 †
@@ -20,11 +21,13 @@ jackroos@mail.ustc.edu.cn , xgwang@ee.cuhk.edu.hk binli@ustc.edu.cn
 <!-- SECTION: abstract | PAGES: 1-1 -->
 ## Abstract
 
+<!-- PAGE 1 -->
 DETR has been recently proposed to eliminate the need for many hand-designed components in object detection while demonstrating good performance. However, it suffers from slow convergence and limited feature spatial resolution, due to the limitation of Transformer attention modules in processing image feature maps. To mitigate these issues, we proposed Deformable DETR, whose attention modules only attend to a small set of key sampling points around a reference. Deformable DETR can achieve better performance than DETR (especially on small objects) with 10 × less training epochs. Extensive experiments on the COCO benchmark demonstrate the effectiveness of our approach. Code is released at https:// github.com/fundamentalvision/Deformable-DETR .
 
 <!-- SECTION: introduction | PAGES: 1-2 -->
 ## Introduction
 
+<!-- PAGE 1 -->
 Modern object detectors employ many hand-crafted components (Liu et al., 2020), e.g., anchor generation, rule-based training target assignment, non-maximum suppression (NMS) post-processing. They are not fully end-to-end. Recently, Carion et al. (2020) proposed DETR to eliminate the need for such hand-crafted components, and built the first fully end-to-end object detector, achieving very competitive performance. DETR utilizes a simple architecture, by combining convolutional neural networks (CNNs) and Transformer (Vaswani et al., 2017) encoder-decoders. They exploit the versatile and powerful relation modeling capability of Transformers to replace the hand-crafted rules, under properly designed training signals.
 
 Despite its interesting design and good performance, DETR has its own issues: (1) It requires much longer training epochs to converge than the existing object detectors. For example, on the COCO(Lin et al., 2014) benchmark, DETR needs 500 epochs to converge, which is around 10 to 20 times slower than Faster R-CNN (Ren et al., 2015). (2) DETR delivers relatively low performance at detecting small objects. Modern object detectors usually exploit multi-scale features, where small objects are detected from high-resolution feature maps. Meanwhile, high-resolution feature maps lead to unacceptable complexities for DETR. The above-mentioned issues can be mainly attributed to the deficit of Transformer components in processing image feature maps. At initialization, the attention modules cast nearly uniform attention weights to all the pixels in the feature maps. Long training epoches is necessary for the attention weights to be learned to focus on sparse meaningful locations. On the other hand, the attention weights computation in Transformer encoder is of quadratic computation w.r.t. pixel numbers. Thus, it is of very high computational and memory complexities to process high-resolution feature maps.
@@ -33,6 +36,7 @@ In the image domain, deformable convolution (Dai et al., 2017) is of a powerful 
 
 ∗ Equal contribution. † Corresponding author. ‡ Work is done during an internship at SenseTime Research.
 
+<!-- PAGE 2 -->
 Figure 1: Illustration of the proposed Deformable DETR object detector.
 
 <!-- image -->
@@ -46,10 +50,12 @@ Extensive experiments on the COCO (Lin et al., 2014) benchmark demonstrate the e
 <!-- SECTION: related_work | PAGES: 2-5 -->
 ## Related Work
 
+<!-- PAGE 2 -->
 Efficient Attention Mechanism. Transformers (Vaswani et al., 2017) involve both self-attention and cross-attention mechanisms. One of the most well-known concern of Transformers is the high time and memory complexity at vast key element numbers, which hinders model scalability in many cases. Recently, many efforts have been made to address this problem (Tay et al., 2020b), which can be roughly divided into three categories in practice.
 
 The first category is to use pre-defined sparse attention patterns on keys. The most straightforward paradigm is restricting the attention pattern to be fixed local windows. Most works (Liu et al., 2018a; Parmar et al., 2018; Child et al., 2019; Huang et al., 2019; Ho et al., 2019; Wang et al., 2020a; Hu et al., 2019; Ramachandran et al., 2019; Qiu et al., 2019; Beltagy et al., 2020; Ainslie et al., 2020; Zaheer et al., 2020) follow this paradigm. Although restricting the attention pattern to a local neighborhood can decrease the complexity, it loses global information. To compensate, Child et al. (2019); Huang et al. (2019); Ho et al. (2019); Wang et al. (2020a) attend key elements
 
+<!-- PAGE 3 -->
 at fixed intervals to significantly increase the receptive field on keys. Beltagy et al. (2020); Ainslie et al. (2020); Zaheer et al. (2020) allow a small number of special tokens having access to all key elements. Zaheer et al. (2020); Qiu et al. (2019) also add some pre-fixed sparse attention patterns to attend distant key elements directly.
 
 The second category is to learn data-dependent sparse attention. Kitaev et al. (2020) proposes a locality sensitive hashing (LSH) based attention, which hashes both the query and key elements to different bins. A similar idea is proposed by Roy et al. (2020), where k-means finds out the most related keys. Tay et al. (2020a) learns block permutation for block-wise sparse attention.
@@ -70,6 +76,7 @@ Multi-Head Attention in Transformers. Transformers (Vaswani et al., 2017) are of
 
 <!-- formula-not-decoded -->
 
+<!-- PAGE 4 -->
 where m indexes the attention head, W ′ m ∈ R C v × C and W m ∈ R C × C v are of learnable weights ( C v = C/M by default). The attention weights A mqk ∝ exp { z T q U T m V m x k √ C v } are normalized as ∑ k ∈ Ω k A mqk = 1 , in which U m , V m ∈ R C v × C are also learnable weights. To disambiguate different spatial positions, the representation features z q and x k are usually of the concatenation/summation of element contents and positional embeddings.
 
 There are two known issues with Transformers. One is Transformers need long training schedules before convergence. Suppose the number of query and key elements are of N q and N k , respectively. Typically, with proper parameter initialization, U m z q and V m x k follow distribution with mean of 0 and variance of 1 , which makes attention weights A mqk ≈ 1 N k , when N k is large. It will lead to ambiguous gradients for input features. Thus, long training schedules are required so that the attention weights can focus on specific keys. In the image domain, where the key elements are usually of image pixels, N k can be very large and the convergence is tedious.
@@ -86,6 +93,7 @@ For the Transformer decoder in DETR, the input includes both feature maps from t
 
 DETR is an attractive design for object detection, which removes the need for many hand-designed components. However, it also has its own issues. These issues can be mainly attributed to the deficits of Transformer attention in handling image feature maps as key elements: (1) DETR has relatively low performance in detecting small objects. Modern object detectors use high-resolution feature maps to better detect small objects. However, high-resolution feature maps would lead to an unacceptable complexity for the self-attention module in the Transformer encoder of DETR, which has a quadratic complexity with the spatial size of input feature maps. (2) Compared with modern object detectors, DETR requires many more training epochs to converge. This is mainly because the attention modules processing image features are difficult to train. For example, at initialization, the cross-attention modules are almost of average attention on the whole feature maps. While, at the end of the training, the attention maps are learned to be very sparse, focusing only on the object
 
+<!-- PAGE 5 -->
 Figure 2: Illustration of the proposed deformable attention module.
 
 <!-- image -->
@@ -95,6 +103,7 @@ extremities. It seems that DETR requires a long training schedule to learn such 
 <!-- SECTION: methodology | PAGES: 5-7 -->
 ## Methodology
 
+<!-- PAGE 5 -->
 ## 4.1 DEFORMABLE TRANSFORMERS FOR END-TO-END OBJECT DETECTION
 
 Deformable Attention Module. The core issue of applying Transformer attention on image feature maps is that it would look over all possible spatial locations. To address this, we present a deformable attention module . Inspired by deformable convolution (Dai et al., 2017; Zhu et al., 2019b), the deformable attention module only attends to a small set of key sampling points around a reference point, regardless of the spatial size of the feature maps, as shown in Fig. 2. By assigning only a small fixed number of keys for each query, the issues of convergence and feature spatial resolution can be mitigated.
@@ -107,6 +116,7 @@ where m indexes the attention head, k indexes the sampled keys, and K is the tot
 
 The deformable attention module is designed for processing convolutional feature maps as key elements. Let N q be the number of query elements, when MK is relatively small, the complexity of the deformable attention module is of O (2 N q C 2 +min( HWC 2 , N q KC 2 )) (See Appendix A.1 for details). When it is applied in DETR encoder, where N q = HW , the complexity becomes O ( HWC 2 ) , which is of linear complexity with the spatial size. When it is applied as the cross-attention modules
 
+<!-- PAGE 6 -->
 in DETR decoder, where N q = N ( N is the number of object queries), the complexity becomes O ( NKC 2 ) , which is irrelevant to the spatial size HW .
 
 Multi-scale Deformable Attention Module. Most modern object detection frameworks benefit from multi-scale feature maps (Liu et al., 2020). Our proposed deformable attention module can be naturally extended for multi-scale feature maps.
@@ -125,6 +135,7 @@ In application of the multi-scale deformable attention module in encoder, the ou
 
 Deformable Transformer Decoder. There are cross-attention and self-attention modules in the decoder. The query elements for both types of attention modules are of object queries. In the crossattention modules, object queries extract features from the feature maps, where the key elements are of the output feature maps from the encoder. In the self-attention modules, object queries interact with each other, where the key elements are of the object queries. Since our proposed deformable attention module is designed for processing convolutional feature maps as key elements, we only replace each cross-attention module to be the multi-scale deformable attention module, while leaving the self-attention modules unchanged. For each object query, the 2-d normalized coordinate of the
 
+<!-- PAGE 7 -->
 reference point ˆ p q is predicted from its object query embedding via a learnable linear projection followed by a sigmoid function.
 
 Because the multi-scale deformable attention module extracts image features around the reference point, we let the detection head predict the bounding box as relative offsets w.r.t. the reference point to further reduce the optimization difficulty. The reference point is used as the initial guess of the box center. The detection head predicts the relative offsets w.r.t. the reference point. Check Appendix A.3 for the details. In this way, the learned decoder attention will have strong correlation with the predicted bounding boxes, which also accelerates the training convergence.
@@ -144,6 +155,7 @@ In the first stage, to achieve high-recall proposals, each pixel in the multi-sc
 <!-- SECTION: experiments | PAGES: 7-9 -->
 ## Experiments
 
+<!-- PAGE 7 -->
 Dataset. We conduct experiments on COCO 2017 dataset (Lin et al., 2014). Our models are trained on the train set, and evaluated on the val set and test-dev set.
 
 Implementation Details. ImageNet (Deng et al., 2009) pre-trained ResNet-50 (He et al., 2016) is utilized as the backbone for ablations. Multi-scale feature maps are extracted without FPN (Lin et al., 2017a). M = 8 and K = 4 are set for deformable attentions by default. Parameters of the deformable Transformer encoder are shared among different feature levels. Other hyper-parameter setting and training strategy mainly follow DETR (Carion et al., 2020), except that Focal Loss (Lin et al., 2017b) with loss weight of 2 is used for bounding box classification, and the number of object queries is increased from 100 to 300. We also report the performance of DETR-DC5 with these modifications for a fair comparison, denoted as DETR-DC5 + . By default, models are trained for 50 epochs and the learning rate is decayed at the 40-th epoch by a factor of 0.1. Following DETR(Carion et al., 2020), we train our models using Adam optimizer (Kingma &amp; Ba, 2015) with base learning rate of 2 × 10 -4 , β 1 = 0 . 9 , β 2 = 0 . 999 , and weight decay of 10 -4 . Learning rates of the linear projections, used for predicting object query reference points and sampling offsets, are multiplied by a factor of 0.1. Run time is evaluated on NVIDIA Tesla V100 GPU.
@@ -152,6 +164,7 @@ Implementation Details. ImageNet (Deng et al., 2009) pre-trained ResNet-50 (He e
 
 As shown in Table 1, compared with Faster R-CNN + FPN, DETR requires many more training epochs to converge, and delivers lower performance at detecting small objects. Compared with
 
+<!-- PAGE 8 -->
 DETR, Deformable DETR achieves better performance (especially on small objects) with 10 × less training epochs. Detailed convergence curves are shown in Fig. 3. With the aid of iterative bounding box refinement and two-stage paradigm, our method can further improve the detection accuracy.
 
 Our proposed Deformable DETR has on par FLOPs with Faster R-CNN + FPN and DETR-DC5. But the runtime speed is much faster (1.6 × ) than DETR-DC5, and is just 25% slower than Faster R-CNN + FPN. The speed issue of DETR-DC5 is mainly due to the large amount of memory access in Transformer attention. Our proposed deformable attention can mitigate this issue, at the cost of unordered memory access. Thus, it is still slightly slower than traditional convolution.
@@ -181,6 +194,7 @@ Table 2 presents ablations for various design choices of the proposed deformable
 
 Table 3 compares the proposed method with other state-of-the-art methods. Iterative bounding box refinement and two-stage mechanism are both utilized by our models in Table 3. With ResNet-101 and ResNeXt-101 (Xie et al., 2017), our method achieves 48.7 AP and 49.0 AP without bells and whistles, respectively. By using ResNeXt-101 with DCN (Zhu et al., 2019b), the accuracy rises to 50.1 AP. With additional test-time augmentations, the proposed method achieves 52.3 AP.
 
+<!-- PAGE 9 -->
 Table 2: Ablations for deformable attention on COCO 2017 val set. 'MS inputs' indicates using multi-scale inputs. 'MS attention' indicates using multi-scale deformable attention. K is the number of sampling points for each attention head on each feature level.
 
 | MS inputs   | MS attention   |   K | FPNs                     |   AP |   AP 50 |   AP 75 |   AP S |   AP M |   AP L |
@@ -209,6 +223,7 @@ Table 3: Comparison of Deformable DETR with state-of-the-art methods on COCO 201
 <!-- SECTION: conclusion | PAGES: 9-9 -->
 ## Conclusion
 
+<!-- PAGE 9 -->
 Deformable DETR is an end-to-end object detector, which is efficient and fast-converging. It enables us to explore more interesting and practical variants of end-to-end object detectors. At the core of Deformable DETR are the (multi-scale) deformable attention modules, which is an efficient attention mechanism in processing image feature maps. We hope our work opens up new possibilities in exploring end-to-end object detection.
 
 ## ACKNOWLEDGMENTS
@@ -218,12 +233,14 @@ The work is supported by the National Key R&amp;D Program of China (2020AAA01052
 <!-- SECTION: references | PAGES: 9-16 -->
 ## References
 
+<!-- PAGE 9 -->
 - Joshua Ainslie, Santiago Ontanon, Chris Alberti, Philip Pham, Anirudh Ravula, and Sumit Sanghai. Etc: Encoding long and structured data in transformers. arXiv preprint arXiv:2004.08483 , 2020.
 - Iz Beltagy, Matthew E Peters, and Arman Cohan. Longformer: The long-document transformer. arXiv preprint arXiv:2004.05150 , 2020.
 - Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-end object detection with transformers. In ECCV , 2020.
 - Rewon Child, Scott Gray, Alec Radford, and Ilya Sutskever. Generating long sequences with sparse transformers. arXiv preprint arXiv:1904.10509 , 2019.
 - Krzysztof Choromanski, Valerii Likhosherstov, David Dohan, Xingyou Song, Jared Davis, Tamas Sarlos, David Belanger, Lucy Colwell, and Adrian Weller. Masked language modeling for proteins via linearly scalable long-context transformers. arXiv preprint arXiv:2006.03555 , 2020.
 
+<!-- PAGE 10 -->
 - Jifeng Dai, Haozhi Qi, Yuwen Xiong, Yi Li, Guodong Zhang, Han Hu, and Yichen Wei. Deformable convolutional networks. In ICCV , 2017.
 - Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li Fei-Fei. Imagenet: A large-scale hierarchical image database. In CVPR , 2009.
 - Golnaz Ghiasi, Tsung-Yi Lin, and Quoc V Le. Nas-fpn: Learning scalable feature pyramid architecture for object detection. In CVPR , 2019.
@@ -247,6 +264,7 @@ The work is supported by the National Key R&amp;D Program of China (2020AAA01052
 - Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun. Faster r-cnn: Towards real-time object detection with region proposal networks. In NeurIPS , 2015.
 - Aurko Roy, Mohammad Saffar, Ashish Vaswani, and David Grangier. Efficient content-based sparse attention with routing transformers. arXiv preprint arXiv:2003.05997 , 2020.
 
+<!-- PAGE 11 -->
 - Guanglu Song, Yu Liu, and Xiaogang Wang. Revisiting the sibling head in object detector. In CVPR , 2020.
 - Mingxing Tan, Ruoming Pang, and Quoc V Le. Efficientdet: Scalable and efficient object detection. In CVPR , 2020.
 - Yi Tay, Dara Bahri, Liu Yang, Donald Metzler, and Da-Cheng Juan. Sparse sinkhorn attention. In ICML , 2020a.
@@ -265,6 +283,7 @@ The work is supported by the National Key R&amp;D Program of China (2020AAA01052
 - Xizhou Zhu, Dazhi Cheng, Zheng Zhang, Stephen Lin, and Jifeng Dai. An empirical study of spatial attention mechanisms in deep networks. In ICCV , 2019a.
 - Xizhou Zhu, Han Hu, Stephen Lin, and Jifeng Dai. Deformable convnets v2: More deformable, better results. In CVPR , 2019b.
 
+<!-- PAGE 12 -->
 ## A APPENDIX
 
 ## A.1 COMPLEXITY FOR DEFORMABLE ATTENTION
@@ -287,6 +306,7 @@ Since the multi-scale deformable attention module extracts image features around
 
 Iterative Bounding Box Refinement. Here, each decoder layer refines the bounding boxes based on the predictions from the previous layer. Suppose there are D number of decoder layers (e.g., D = 6 ), given a normalized bounding box ˆ b d -1 q predicted by the ( d -1) -th decoder layer, the d -th
 
+<!-- PAGE 13 -->
 decoder layer refines the box as
 
 <!-- formula-not-decoded -->
@@ -313,6 +333,7 @@ For studying what Deformable DETR looks at to give final detection result, we dr
 
 The visualization indicates that Deformable DETR looks at extreme points of the object to determine its bounding box, which is similar to the observation in DETR (Carion et al., 2020). More concretely, Deformable DETR attends to left/right boundary of the object for x coordinate and width, and top/bottom boundary for y coordinate and height. Meanwhile, different to DETR (Carion et al., 2020), our Deformable DETR also looks at pixels inside the object for predicting its category.
 
+<!-- PAGE 14 -->
 Figure 5: The gradient norm of each item (coordinate of object center ( x, y ) , width/height of object bounding box w/h , category score c of this object) in final detection result with respect to each pixel in input image I .
 
 <!-- image -->
@@ -323,12 +344,14 @@ For better understanding learned multi-scale deformable attention modules, we vi
 
 Similar to DETR (Carion et al., 2020), the instances are already separated in the encoder of Deformable DETR. While in the decoder, our model is focused on the whole foreground instance instead of only extreme points as observed in DETR (Carion et al., 2020). Combined with the visualization of ‖ ∂c ∂I ‖ in Fig. 5, we can guess the reason is that our Deformable DETR needs not only extreme points but also interior points to detemine object category. The visualization also demonstrates that the proposed multi-scale deformable attention module can adapt its sampling points and attention weights according to different scales and shapes of the foreground object.
 
+<!-- PAGE 15 -->
 <!-- image -->
 
 (b) multi-scale deformable cross-attention in decoder
 
 Figure 6: Visualization of multi-scale deformable attention. For readibility, we draw the sampling points and attention weights from feature maps of different resolutions in one picture. Each sampling point is marked as a filled circle whose color indicates its correspoinding attention weight. The reference point is shown as green cross marker, which is also equivalent to query point in encoder. In decoder, the predicted bounding box is shown as a green rectangle and the category and confidence score are texted just above it.
 
+<!-- PAGE 16 -->
 ## A.7 NOTATIONS
 
 Table 4: Lookup table for notations in the paper.

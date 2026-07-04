@@ -3,6 +3,7 @@
 <!-- SECTION: front_matter | PAGES: 1-1 -->
 ## Front Matter
 
+<!-- PAGE 1 -->
 ## DAB-DETR: DYNAMIC ANCHOR BOXES ARE BETTER QUERIES FOR DETR
 
 Shilong Liu 1 , 2 ∗ , Feng Li 2 , 3 , Hao Zhang 2 , 3 , Xiao Yang 1 ,
@@ -32,11 +33,13 @@ Xianbiao Qi 2 , Hang Su 1 , 4 , Jun Zhu 1 , 4 † , Lei Zhang 2
 <!-- SECTION: abstract | PAGES: 1-1 -->
 ## Abstract
 
+<!-- PAGE 1 -->
 We present in this paper a novel query formulation using dynamic anchor boxes for DETR (DEtection TRansformer) and offer a deeper understanding of the role of queries in DETR. This new formulation directly uses box coordinates as queries in Transformer decoders and dynamically updates them layer-by-layer. Using box coordinates not only helps using explicit positional priors to improve the queryto-feature similarity and eliminate the slow training convergence issue in DETR, but also allows us to modulate the positional attention map using the box width and height information. Such a design makes it clear that queries in DETR can be implemented as performing soft ROI pooling layer-by-layer in a cascade manner. As a result, it leads to the best performance on MS-COCO benchmark among the DETR-like detection models under the same setting, e.g., AP 45.7% using ResNet50-DC5 as backbone trained in 50 epochs. We also conducted extensive experiments to confirm our analysis and verify the effectiveness of our methods. Code is available at https://github.com/SlongLiu/DAB-DETR .
 
 <!-- SECTION: introduction | PAGES: 1-3 -->
 ## Introduction
 
+<!-- PAGE 1 -->
 Object detection is a fundamental task in computer vision of wide applications. Most classical detectors are based on convolutional architectures which have made remarkable progress in the last decade (Ren et al., 2017; Girshick, 2015; Redmon et al., 2016; Bochkovskiy et al., 2020; Ge et al., 2021). Recently, Carion et al. (2020) proposed a Transformer-based end-to-end detector named DETR (DEtection TRansformer), which eliminates the need for hand-designed components, e.g., anchors, and shows promising performance compared with modern anchor-based detectors such as Faster RCNN (Ren et al., 2017).
 
 In contrast to anchor-based detectors, DETR models object detection as a set prediction problem and uses 100 learnable queries to probe and pool features from images, which makes predictions without the need of using non-maximum suppression. However, due to its ineffective design and use of queries, DETR suffers from significantly slow training convergence, usually requiring 500 epochs to achieve a good performance. To address this issue, many follow-up works attempted to improve the design of DETR queries for both faster training convergence and better performance (Zhu et al., 2021; Gao et al., 2021; Meng et al., 2021; Wang et al., 2021).
@@ -47,6 +50,7 @@ Despite all the progress, the role of the learned queries in DETR is still not f
 
 † Corresponding author.
 
+<!-- PAGE 2 -->
 Figure 1: Comparison of DETR, Conditional DETR, and our proposed DAB-DETR. For clarity, we only show the cross-attention part in the Transformer decoder. (a) DETR uses the learnable queries for all the layers without any adaptation, which accounts for its slow training convergence. (b) Conditional DETR adapts the learnable queries for each layer mainly to provide a better reference query point to pool features from the image feature map. In contrast, (c) DAB-DETR directly uses dynamically updated anchor boxes to provide both a reference query point ( x, y ) and a reference anchor size ( w,h ) to improve the cross-attention computation. We marked the modules with difference in purple.
 
 <!-- image -->
@@ -61,6 +65,7 @@ We provide a better positional prior for pooling features by using anchor box si
 
 1 See the DETR implementation at https://github.com/facebookresearch/detr . The components of queries and keys are also shown in each subplot of Fig. 1. Note that the learnable queries in DETR are only for the positional part. Related discussion can also be found in Conditional DETR (Meng et al., 2021).
 
+<!-- PAGE 3 -->
 local region corresponding to a target object. It can also facilitate to speed up the training convergence of DETR. Most prior works improve DETR by associating each query with a specific location, but they assume an isotropic Gaussian positional prior of a fixed size, which is inappropriate for objects of different scales. With the size information ( w,h ) available in each query anchor box, we can modulate the Gaussian positional prior as an oval shape. More specifically, we divide the width and height from the cross-attention weight (before softmax) for its x part and y part separately, which helps the Gaussian prior to better match with objects of different scales. To further improve the positional prior, we also introduce a temperature parameter to tune the flatness of positional attention, which has been overlooked in all prior works.
 
 In summary, our proposed DAB-DETR ( D ynamic A nchor B ox DETR ) presents a novel query formulation by directly learning anchors as queries. This formulation offers a deeper understanding of the role of queries, allowing us to use anchor size to modulate the positional cross-attention map in Transformer decoders and perform dynamic anchor update layer-by-layer. Our results demonstrate that DAB-DETR attains the best performance among DETR-like architectures under the same setting on the COCO object detection benchmark. The proposed method can achieve 45 . 7% AP when using a single ResNet-50 (He et al., 2016) model as backbone for training 50 epochs. We also conducted extensive experiments to confirm our analysis and verify the effectiveness of our methods.
@@ -68,12 +73,14 @@ In summary, our proposed DAB-DETR ( D ynamic A nchor B ox DETR ) presents a nove
 <!-- SECTION: related_work | PAGES: 3-5 -->
 ## Related Work
 
+<!-- PAGE 3 -->
 Most classical detectors are anchor-based, using either anchor boxes (Ren et al., 2017; Girshick, 2015; Sun et al., 2021) or anchor points (Tian et al., 2019; Zhou et al., 2019). In contrast, DETR (Carion et al., 2020) is a fully anchor-free detector using a set of learnable vectors as queries. Many follow-up works attempted to solve the slow convergence of DETR from different perspectives. Sun et al. (2020) pointed out that the cause of slow training of DETR is due to the crossattention in decoders and hence proposed an encoder-only model. Gao et al. (2021) instead introduced a Gaussian prior to regulate the cross-attention. Despite their improved performance, they did not give a proper explanation of the slow training and the roles of queries in DETR.
 
 Another direction to improve DETR, which is more relevant to our work, is towards a deeper understanding of the role of queries in DETR. As the learnable queries in DETR are used to provide positional constrains for feature pooling, most related works attempted to make each query in DETR more explicitly related to a specific spatial position rather than multiple position modes in the vanilla DETR. For example, Deformable DETR (Zhu et al., 2021) directly treats 2D reference points as queries and predicts deformable sampling points for each reference point to perform deformable cross-attention operation. Conditional DETR (Meng et al., 2021) decouples the attention formulation and generates positional queries based on reference coordinates. Efficient DETR (Yao et al., 2021) introduces a dense prediction module to select top-K positions as object queries. Although these works connect queries with positional information, they do not have an explicit formulation to use anchors.
 
 Different from the hypothesis in prior works that the learnable query vectors contain box coordinate information, our approach is based on a new perspective that all information contained in queries are box coordinates. That is, anchor boxes are better queries for DETR . A concurrent work Anchor DETR (Wang et al., 2021) also suggests learning anchor points directly, while it ignores the anchor width and height information as in other prior works. Besides DETR, Sun et al. (2021) proposed a sparse detector by learning boxes directly, which shares a similar anchor formulation with us, but it discards the Transformer structure and leverages hard ROI align for feature extraction. Table 1 summarizes the key differences between related works and our proposed DAB-DETR. We compare our model with related works on five dimensions: if the model directly learns anchors, if the model predicts reference coordinates (in its intermediate stage) , if the model updates the reference anchors layer-by-layer, if the model uses the standard dense cross-attention, if the attention is modulated to better match with objects of different scales. and if the model updates the learned queries layer-bylayer. A more detailed comparison of DETR-like models is available in Sec. B of Appendix. We recommend this section for readers who have confusions about the table.
 
+<!-- PAGE 4 -->
 Table 1: Comparison of representative related models and our DAB-DETR. The term 'Learn Anchors?' asks if the model learns 2D points or 4D anchors as learnable parameters directly. The term 'Reference Anchors' means if the model predicts relative coordinates with respect to a reference points/anchors. The term 'Dynamic Anchors' indicates if the model updates its anchors layer-by-layer. The term 'Standard Attention' shows whether the model leverages the standard dense attention in cross-attention modules. The term 'Object Scale-Modulated Attention' means if the attention is modulated to better match with object scales. The term 'Size-Modulated Attention' means if the attention is modulated to better match with object scales. The term 'Update Spatial Learned Queries?' means if the learned queries are updated layer by layer. Note that Sparse RCNN is not a DETR-like architecture. we list it here for their similar anchor formulation with us. See Sec. B of Appendix for a more detailed comparison of these models.
 
 | Models           | Learn Anchors?   | Reference Anchors   | Dynamic Anchors   | Standard Attention   | Size-Modulated Attention   | Update Learned Spatial Queries?   |
@@ -98,6 +105,7 @@ Two possible reasons in cross-attention account for the model's slow training co
 
 Then we turn to the second possibility and try to find out if the learned queries have some undesirable properties. As the learned queries are used to filter objects in certain regions, we visualize a few positional attention maps between the learned queries and the positional embeddings of image
 
+<!-- PAGE 5 -->
 Figure 3: a): Training curves of the original DETR and DETR with fixed queries. b): Training curves of the original DETR and DETR+DAB. We run each experiment 3 times and plot the mean value and the 95% confidence interval of each item.
 
 <!-- image -->
@@ -113,6 +121,7 @@ Some previous works also has similar analysis and confirmed this. For example, S
 <!-- SECTION: methodology | PAGES: 6-8 -->
 ## Methodology
 
+<!-- PAGE 6 -->
 ## 4.1 OVERVIEW
 
 Following DETR (Carion et al., 2020), our model is an end-to-end object detector which includes a CNN backbone, Transformer (Vaswani et al., 2017) encoders and decoders, and prediction heads for boxes and labels. We mainly improve the decoder part, as shown in Fig. 5.
@@ -135,6 +144,7 @@ Figure 5: Framework of our proposed DAB-DETR.
 
 <!-- image -->
 
+<!-- PAGE 7 -->
 where PE means positional encoding to generate sinusoidal embeddings from float numbers and the parameters of MLP are shared across all layers. As A q is a quaternion, we overload the PE operator here:
 
 <!-- formula-not-decoded -->
@@ -169,6 +179,7 @@ Figure 7: Positional attention maps with different temperatures.
 
 Traditional positional attention maps are used as a Gaussian-like prior, as shown in Fig. 6 left. But the prior is simply assumed isotropic and fixed size for all objects, leaving their scale information
 
+<!-- PAGE 8 -->
 (width and height) ignored. To improve the positional prior, we propose to inject the scale information into the attention maps.
 
 The query-to-key similarity in the original positional attention map is computed as the sum of dot products of two coordinate encodings:
@@ -196,12 +207,14 @@ where T is a hand-design temperature, and the superscript 2 i and 2 i + 1 denote
 <!-- SECTION: experiments | PAGES: 8-9 -->
 ## Experiments
 
+<!-- PAGE 8 -->
 We provide the training details in Appendix A.
 
 ## 5.1 MAIN RESULTS
 
 Table 2 shows our main results on the COCO 2017 validation set. We compare our proposed DABDETRwith DETR (Carion et al., 2020), Faster RCNN (Ren et al., 2017), Anchor DETR (Wang et al., 2021), SMCA (Gao et al., 2021), Deformable DETR (Zhu et al., 2021), TSP (Sun et al., 2020), and Conditional DETR (Meng et al., 2021). We showed two variations of our model: standard models and models marked with superscript ∗ that have 3 pattern embeddings (Wang et al., 2021). Our standard models outperform Conditional DETR with a large margin. We notice that our model introduce a slight increase of GFLOPs. GFLOPs may differ depending on the calculation scripts and we use the results reported by the authors in Table 2. Actually, we find in our tests that the GFLOPs of our standatd models are nearly the same as the corresponding Conditional DETR models based on our GFLOPs calculation scripts, hence our model still has advantages over previous work under the same settings. When using pattern embeddings, our DAB-DETR with ∗ outperforms previous DETR-like methods on all four backbones with a large margin, even better than multiscale architectures. It verifies the correctness of our analysis and the effectiveness of our design.
 
+<!-- PAGE 9 -->
 Table 2: Results for our DAB-DETR and other detection models. All DETR-like models except DETR use 300 queries, while DETR uses 100 . The models with superscript ∗ use 3 pattern embeddings as in Anchor DETR (Wang et al., 2021). We also provide stronger results of our DAB-DETR in Appendix G and Appendix C.
 
 | Model                      | MultiScale   |   #epochs | AP     | AP 50   | AP 75   | AP S   | AP M   | AP L   | GFLOPs   | Params   |
@@ -253,8 +266,10 @@ After removing modulated attention and temperature tuning, the model performance
 <!-- SECTION: conclusion | PAGES: 9-10 -->
 ## Conclusion
 
+<!-- PAGE 9 -->
 We have presented in this paper a novel query formulation using dynamic anchor boxes for DETR and offer a deeper understanding of the role of queries in DETR. Using anchor boxes as queries lead to several advantages, including a better positional prior with temperature tuning, size-modulated
 
+<!-- PAGE 10 -->
 attention to account for objects of different scales, and iterative anchor update for improving anchor estimate gradually. Such a design makes it clear that queries in DETR can be implemented as performing soft ROI pooling layer-by-layer in a cascade manner. Extensive experiments were conducted and effectively confirmed our analysis and verified our algorithm design.
 
 ## ACKNOWLEDGEMENTS
@@ -274,6 +289,7 @@ We confirm the reproducibility of the results. All materials that are needed to 
 <!-- SECTION: references | PAGES: 10-12 -->
 ## References
 
+<!-- PAGE 10 -->
 - Alexey Bochkovskiy, Chien-Yao Wang, and Hong-Yuan Mark Liao. Yolov4: Optimal speed and accuracy of object detection. arXiv preprint arXiv:2004.10934 , 2020.
 - Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-end object detection with transformers. In European Conference on Computer Vision , pp. 213-229. Springer, 2020.
 - Xiyang Dai, Yinpeng Chen, Jianwei Yang, Pengchuan Zhang, Lu Yuan, and Lei Zhang. Dynamic detr: End-to-end object detection with dynamic attention. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pp. 2988-2997, October 2021.
@@ -282,6 +298,7 @@ We confirm the reproducibility of the results. All materials that are needed to 
 - Ross Girshick. Fast r-cnn. In 2015 IEEE International Conference on Computer Vision (ICCV) , pp. 1440-1448, 2015.
 - Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Delving deep into rectifiers: Surpassing human-level performance on imagenet classification. In 2015 IEEE International Conference on Computer Vision (ICCV) , pp. 1026-1034, 2015.
 
+<!-- PAGE 11 -->
 - Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 770-778, 2016.
 - Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Doll´ ar, and C Lawrence Zitnick. Microsoft coco: Common objects in context. In European conference on computer vision , pp. 740-755. Springer, 2014.
 - Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, and Piotr Dollar. Focal loss for dense object detection. IEEE Transactions on Pattern Analysis and Machine Intelligence , 42(2):318327, 2020.
@@ -299,6 +316,7 @@ We confirm the reproducibility of the results. All materials that are needed to 
 - Xingyi Zhou, Dequan Wang, and Philipp Kr¨ ahenb¨ uhl. Objects as points. arXiv preprint arXiv:1904.07850 , 2019.
 - Xizhou Zhu, Weijie Su, Lewei Lu, Bin Li, Xiaogang Wang, and Jifeng Dai. Deformable detr: Deformable transformers for end-to-end object detection. In ICLR 2021: The Ninth International Conference on Learning Representations , 2021.
 
+<!-- PAGE 12 -->
 ## A TRAINING DETAILS
 
 Architecture. Our model is almost the same as DETR which includes a CNN backbone, multiple Transformer (Vaswani et al., 2017) encoders and decoders, and two prediction heads for boxes and labels. We use ImageNet-pretrained ResNet (He et al., 2016) as our backbones, and 6 Transformer encoders and 6 Transformer decoders in our implementations. We follow previous works to report results over four backbones: ResNet-50, ResNet-101, and their 16×-resolution extensions ResNet50-DC5 and ResNet-101-DC5. As we need to predict boxes and labels in each decoder layer, the MLP networks for box and label predictions share the same parameters across different decoder layers. As inspired by Anchor DETR, we also leverage multiple pattern embeddings to perform multiple predictions at one position and the number of patterns is set as 3 which is the same as Anchor DETR. We also leverage PReLU (He et al., 2015) as our activations.
@@ -326,9 +344,10 @@ In this section, we provide a more detailed comparison of DETR-like models, incl
 
 Anchor DETR (Wang et al., 2021) improves DETR by introducing 2D anchor points, which are updated layer by layer. It shares a similar motivation with our work. But it leaves the object scale information unconsidered and thus cannot modulate the cross-attention to make it adapt to objects of different scales. Moreover, the positional queries in its framework are of high dimension and passed to the self-attention modules in all layers without any adaptation. See the brown colored part in Fig. 8 (d) for details. This design might be sub-optimal as the self-attention modules cannot leverage the refined anchor points in different layers.
 
-<!-- SECTION: appendix | PAGES: 12-19 -->
+<!-- SECTION: appendix | PAGES: 13-19 -->
 ## Appendix
 
+<!-- PAGE 13 -->
 Deformable DETR (Zhu et al., 2021) introduces 4D anchor boxes and updates them layer by layer, which is called iterative bounding box refinement in its paper. Its algorithm is mainly developed based on deformable attention, which requires reference points to sample attention points and meanwhile utilizes box width and height to modulate attention areas. However, as iterative bounding box refinement is closely coupled with the special design of deformable attention, it is nontrivial to apply it to general Transformer decoder-based DETR models. This is probably the reason why few work after Deformable DETR adopts this idea. Moreover, the position queries in Deformable DETR are passed to both the self-attention modules and the cross-attention modules in all layers without any adaptation.
 
 See the brown colored part in Fig. 8 (e) for details. As the result, both its self-attention modules and cross-attention modules cannot fully leverage the refined anchor boxes in different layers.
@@ -349,10 +368,12 @@ We visualize the learned anchor boxes in Fig. 10. When learning anchor points as
 
 2 We used the open-source implementation from https://github.com/fundamentalvision/ Deformable-DETR
 
+<!-- PAGE 14 -->
 Figure 8: Comparison of DETR-like models. For clarity, we only show two layers of Transformer decoder and omit the FFN blocks. We mark the modules with difference in purple and marked the learned high-dimensional queries in brown. DAB-DETR (c) is proposed in our paper, and DABDeformable-DETR (f) is a variant of Deformable DETR modified by introducing our dynamic anchors boxes. All previous models (a,b,d,e) leverage high-dimensional queries (shaded in brown) to pass positional information to each layers, which are semantic ambiguous and are not updated layer by layer. In contrast, DAB-DETR (c) directly uses dynamically updated anchor boxes to provide both a reference query point ( x, y ) and a reference anchor size ( w,h ) to improve the cross-attention computation. DAB-Deformable-DETR (f) uses dynamically updated anchor boxes to formulate its queries as well.
 
 <!-- image -->
 
+<!-- PAGE 15 -->
 |   # row | Model                          |   AP |   AP 50 |   AP 75 |   AP S |   AP M |   AP L | Params   |
 |---------|--------------------------------|------|---------|---------|--------|--------|--------|----------|
 |       1 | Deformable DETR                | 43.8 |    62.6 |    47.7 |   26.4 |   47.1 |   58.0 | 40M      |
@@ -374,6 +395,7 @@ Figure 10: Learned anchor points when learning 2D coordinates only (left), and a
 
 Table 6 shows the results of models using different temperatures in the positional encoding function. As larger temperature generates more flattened attention maps, it leads to better performances for larger objects. For example, the model with T = 2 and the model with T = 10000 have similar AP results, but the former has better performances on AP S and AP M , while the latter works better on AP L , which also validates the role of positional priors in DETR.
 
+<!-- PAGE 16 -->
 Table 6: Comparison of models with different temperatures. All models are trained with the ResNet50 backbone, batch size 64 , no multiple pattern embeddings, and no modulated attentions. Default Settings are used for the rest of the parameters.
 
 |   Temperature | AP     | AP 50   | AP 75   | AP S   | AP M   | AP L   |
@@ -412,6 +434,7 @@ To further demonstrate the effectiveness of our dynamic anchor box design, we pl
 
 Fig. 12 presents some samples where our model does not predict well. We find our model may have some troubles when facing dense objects, very small objects, or very large objects in an image. To
 
+<!-- PAGE 17 -->
 Table 8: Comparison of DAB-DETR and DAB-DETR with fixed anchor centers x, y . When fixing x, y of queries with random values, the performance of the models is improved consistently. The models with superscript ∗ use 3 pattern embeddings as in Anchor DETR.
 
 | Model                             | AP              | AP 50   | AP 75   | AP S   | AP M   | AP L   |
@@ -437,6 +460,7 @@ improve the performance of our model, we will introduce a multi-scale technique 
 
 We compare the runtime of DETR, Conditional DETR, and our proposed DAB-DETR in Table 9. Their runtime speeds are reported on a single Nvidia A100 GPU. Our DAB-DETR has a similar inference speed but better performance compared with Conditional DETR, which is our direct competitor.
 
+<!-- PAGE 18 -->
 Figure 12: We visualize some images where our model does not predict well, including dense objects (a,b,c), very small objects (d), and very large objects (e,f). The green boxes are ground truth annotations while red boxes are predictions of models.
 
 <!-- image -->
@@ -458,6 +482,7 @@ We present convergence curves of DETR, Conditional DETR, and out DAB-DETR in Fig
 
 Our DAB-DETR converges faster than Conditional DETR, especially on the early epochs, as shown in Fig. 13.
 
+<!-- PAGE 19 -->
 Figure 13: Convergence curves of DETR, Conditional DETR, and our DAB-DETR. All models are trained under the R50(DC5) settinng.
 
 <!-- image -->

@@ -1,3 +1,5 @@
+"""Store chunks and embeddings in ChromaDB."""
+
 import json
 from pathlib import Path
 
@@ -38,15 +40,14 @@ COLLECTION_NAME = "academic_research_chunks"
 
 
 def load_chunks():
-    """Chunkها را از فایل JSON می‌خواند."""
+    """Load all chunks."""
 
     if not CHUNKS_PATH.exists():
         raise FileNotFoundError(
             f"Chunks file not found: {CHUNKS_PATH}"
         )
 
-    with open(
-        CHUNKS_PATH,
+    with CHUNKS_PATH.open(
         "r",
         encoding="utf-8",
     ) as file:
@@ -58,13 +59,15 @@ def load_chunks():
         chunks = data
 
     if not isinstance(chunks, list) or not chunks:
-        raise ValueError("No chunks were found.")
+        raise ValueError(
+            "No chunks were found."
+        )
 
     return chunks
 
 
-def load_embedding_data():
-    """Embeddingها، شناسه‌ها و اطلاعات مدل را می‌خواند."""
+def load_embeddings():
+    """Load embeddings, IDs and embedding information."""
 
     if not EMBEDDINGS_PATH.exists():
         raise FileNotFoundError(
@@ -84,155 +87,91 @@ def load_embedding_data():
             np.float32
         )
 
-        chunk_ids = (
+        embedding_ids = (
             data["chunk_ids"]
             .astype(str)
             .tolist()
         )
 
-    with open(
-        INFO_PATH,
+    with INFO_PATH.open(
         "r",
         encoding="utf-8",
     ) as file:
         embedding_info = json.load(file)
 
-    return embeddings, chunk_ids, embedding_info
-
-
-def get_value(chunk, *keys, default=""):
-    """یک مقدار را از Chunk یا metadata آن پیدا می‌کند."""
-
-    metadata = chunk.get("metadata", {})
-
-    for key in keys:
-        value = chunk.get(key)
-
-        if value not in (None, ""):
-            return value
-
-        if isinstance(metadata, dict):
-            value = metadata.get(key)
-
-            if value not in (None, ""):
-                return value
-
-    return default
-
-
-def get_chunk_id(chunk):
-    """شناسه Chunk را برمی‌گرداند."""
-
-    chunk_id = get_value(
-        chunk,
-        "chunk_id",
-        "id",
+    return (
+        embeddings,
+        embedding_ids,
+        embedding_info,
     )
 
-    if not chunk_id:
-        raise ValueError(
-            "A chunk has no chunk_id."
+
+def create_metadata(chunk):
+    """Create ChromaDB metadata for one chunk."""
+
+    page_start = int(
+        chunk.get("page_start", 0)
+    )
+
+    page_end = int(
+        chunk.get(
+            "page_end",
+            page_start,
         )
-
-    return str(chunk_id)
-
-
-def get_document(chunk):
-    """متن اصلی Chunk را برای ذخیره در Chroma آماده می‌کند."""
-
-    document = get_value(
-        chunk,
-        "text",
-        "chunk_text",
-        "content",
-        "embedding_text",
     )
 
-    if not isinstance(document, str):
-        raise ValueError(
-            f"Chunk {get_chunk_id(chunk)} has no text."
-        )
-
-    document = document.strip()
-
-    if not document:
-        raise ValueError(
-            f"Chunk {get_chunk_id(chunk)} has empty text."
-        )
-
-    return document
-
-
-def get_metadata(chunk):
-    """Metadata موردنیاز Retrieval را می‌سازد."""
-
-    paper_id = get_value(
-        chunk,
-        "paper_id",
-        default="unknown",
-    )
-
-    paper_title = get_value(
-        chunk,
-        "paper_title",
-        "paper_name",
-        default=str(paper_id),
-    )
-
-    section = get_value(
-        chunk,
+    section = chunk.get(
         "section",
-        "section_name",
-        "section_title",
-        default="unknown",
+        chunk.get(
+            "section_name",
+            "unknown",
+        ),
     )
 
-    page_start = get_value(
-        chunk,
-        "page_start",
-        "start_page",
-        default="unknown",
-    )
-
-    page_end = get_value(
-        chunk,
-        "page_end",
-        "end_page",
-        default=page_start,
-    )
-
-    retrieval_enabled = get_value(
-        chunk,
-        "retrieval_enabled",
-        default=True,
-    )
-
-    if isinstance(retrieval_enabled, str):
-        retrieval_enabled = (
-            retrieval_enabled.lower()
-            not in {"false", "0", "no"}
+    retrieval_enabled = bool(
+        chunk.get(
+            "retrieval_enabled",
+            True,
         )
-    else:
-        retrieval_enabled = bool(
-            retrieval_enabled
-        )
+    )
 
-    # بخش References در جست‌وجوی عادی غیرفعال است.
-    if str(section).strip().lower() == "references":
+    if section == "references":
         retrieval_enabled = False
 
     return {
-        "paper_id": str(paper_id),
-        "paper_title": str(paper_title),
+        "paper_id": str(
+            chunk.get("paper_id", "unknown")
+        ),
+        "paper_title": str(
+            chunk.get("paper_title", "unknown")
+        ),
+        "paper_short_name": str(
+            chunk.get(
+                "paper_short_name",
+                "unknown",
+            )
+        ),
         "section": str(section),
-        "page_start": str(page_start),
-        "page_end": str(page_end),
+        "section_title": str(
+            chunk.get(
+                "section_title",
+                section,
+            )
+        ),
+        "chunk_type": str(
+            chunk.get(
+                "chunk_type",
+                "text",
+            )
+        ),
+        "page_start": page_start,
+        "page_end": page_end,
         "retrieval_enabled": retrieval_enabled,
     }
 
 
 def build_vector_store():
-    """Chunkها و Embeddingها را در ChromaDB ذخیره می‌کند."""
+    """Rebuild the ChromaDB collection."""
 
     chunks = load_chunks()
 
@@ -240,12 +179,39 @@ def build_vector_store():
         embeddings,
         embedding_ids,
         embedding_info,
-    ) = load_embedding_data()
+    ) = load_embeddings()
 
-    chunk_ids = [
-        get_chunk_id(chunk)
-        for chunk in chunks
-    ]
+    chunk_ids = []
+    documents = []
+    metadatas = []
+
+    for chunk in chunks:
+        chunk_id = chunk.get("chunk_id")
+        document = chunk.get("text")
+
+        if not chunk_id:
+            raise ValueError(
+                "A chunk has no chunk_id."
+            )
+
+        if (
+            not isinstance(document, str)
+            or not document.strip()
+        ):
+            raise ValueError(
+                f"Chunk {chunk_id} has no text."
+            )
+
+        chunk_ids.append(str(chunk_id))
+        documents.append(document.strip())
+        metadatas.append(
+            create_metadata(chunk)
+        )
+
+    if len(chunk_ids) != len(set(chunk_ids)):
+        raise ValueError(
+            "Duplicate chunk IDs were found."
+        )
 
     if chunk_ids != embedding_ids:
         raise ValueError(
@@ -263,19 +229,15 @@ def build_vector_store():
 
     if embeddings.shape != expected_shape:
         raise ValueError(
-            f"Wrong embedding shape: {embeddings.shape}. "
+            f"Wrong embedding shape: "
+            f"{embeddings.shape}. "
             f"Expected: {expected_shape}"
         )
 
-    documents = [
-        get_document(chunk)
-        for chunk in chunks
-    ]
-
-    metadatas = [
-        get_metadata(chunk)
-        for chunk in chunks
-    ]
+    if not np.isfinite(embeddings).all():
+        raise ValueError(
+            "Embeddings contain NaN or Inf."
+        )
 
     DB_PATH.mkdir(
         parents=True,
@@ -286,7 +248,15 @@ def build_vector_store():
         path=str(DB_PATH)
     )
 
-    collection = client.get_or_create_collection(
+    try:
+        client.delete_collection(
+            name=COLLECTION_NAME
+        )
+        print("Old collection deleted.")
+    except Exception:
+        pass
+
+    collection = client.create_collection(
         name=COLLECTION_NAME,
         embedding_function=None,
         configuration={
@@ -303,11 +273,21 @@ def build_vector_store():
         metadatas=metadatas,
     )
 
-    print(f"Collection: {COLLECTION_NAME}")
-    print(f"Stored records: {collection.count()}")
-    print(f"Database path: {DB_PATH}")
+    stored_count = collection.count()
 
-    return collection
+    if stored_count != len(chunks):
+        raise ValueError(
+            f"Stored records: {stored_count}. "
+            f"Expected: {len(chunks)}."
+        )
+
+    print()
+    print(f"Collection: {COLLECTION_NAME}")
+    print(f"Expected records: {len(chunks)}")
+    print(f"Stored records: {stored_count}")
+    print("Distance type: cosine")
+    print(f"Database path: {DB_PATH}")
+    print("Vector store created successfully.")
 
 
 if __name__ == "__main__":

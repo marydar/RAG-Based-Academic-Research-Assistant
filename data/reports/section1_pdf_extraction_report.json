@@ -1,0 +1,163 @@
+{
+  "section": "PDF Extraction",
+  "papers": {
+    "P1": {
+      "failures": [
+        "The 'pages' field does not exist in document.json.",
+        "No readable page text was found in document.json."
+      ],
+      "warnings": [
+        "Missing metadata field: paper_title",
+        "Missing metadata field: source_file",
+        "Missing metadata field: page_count",
+        "parser_name is not recorded in metadata.json.",
+        "Source PDF could not be found.",
+        "No table objects were found in document.json."
+      ],
+      "information": {
+        "folder": "data\\extracted\\P1",
+        "source_pdf": null,
+        "real_pdf_page_count": null,
+        "json_pages": 0,
+        "metadata_page_count": null,
+        "document_page_count": null,
+        "json_text_length": 0,
+        "markdown_text_length": 66074,
+        "empty_pages": [],
+        "low_text_pages": [],
+        "total_tables": 0,
+        "tables_with_readable_text": 0,
+        "total_pictures": 0,
+        "duplicate_text_occurrences": 0,
+        "found_heading_groups": [
+          "abstract",
+          "introduction",
+          "method",
+          "experiments",
+          "conclusion",
+          "references"
+        ],
+        "missing_heading_groups": []
+      }
+    },
+    "P2": {
+      "failures": [
+        "The 'pages' field does not exist in document.json.",
+        "No readable page text was found in document.json."
+      ],
+      "warnings": [
+        "Missing metadata field: paper_title",
+        "Missing metadata field: source_file",
+        "Missing metadata field: page_count",
+        "parser_name is not recorded in metadata.json.",
+        "Source PDF could not be found.",
+        "No table objects were found in document.json."
+      ],
+      "information": {
+        "folder": "data\\extracted\\P2",
+        "source_pdf": null,
+        "real_pdf_page_count": null,
+        "json_pages": 0,
+        "metadata_page_count": null,
+        "document_page_count": null,
+        "json_text_length": 0,
+        "markdown_text_length": 52049,
+        "empty_pages": [],
+        "low_text_pages": [],
+        "total_tables": 0,
+        "tables_with_readable_text": 0,
+        "total_pictures": 0,
+        "duplicate_text_occurrences": 0,
+        "found_heading_groups": [
+          "abstract",
+          "introduction",
+          "method",
+          "experiments",
+          "conclusion",
+          "references"
+        ],
+        "missing_heading_groups": []
+      }
+    },
+    "P3": {
+      "failures": [
+        "The 'pages' field does not exist in document.json.",
+        "No readable page text was found in document.json."
+      ],
+      "warnings": [
+        "Missing metadata field: paper_title",
+        "Missing metadata field: source_file",
+        "Missing metadata field: page_count",
+        "parser_name is not recorded in metadata.json.",
+        "Source PDF could not be found.",
+        "No table objects were found in document.json."
+      ],
+      "information": {
+        "folder": "data\\extracted\\P3",
+        "source_pdf": null,
+        "real_pdf_page_count": null,
+        "json_pages": 0,
+        "metadata_page_count": null,
+        "document_page_count": null,
+        "json_text_length": 0,
+        "markdown_text_length": 47548,
+        "empty_pages": [],
+        "low_text_pages": [],
+        "total_tables": 0,
+        "tables_with_readable_text": 0,
+        "total_pictures": 0,
+        "duplicate_text_occurrences": 0,
+        "found_heading_groups": [
+          "abstract",
+          "introduction",
+          "method",
+          "experiments",
+          "conclusion",
+          "references"
+        ],
+        "missing_heading_groups": []
+      }
+    },
+    "P4": {
+      "failures": [
+        "The 'pages' field does not exist in document.json.",
+        "No readable page text was found in document.json."
+      ],
+      "warnings": [
+        "Missing metadata field: paper_title",
+        "Missing metadata field: source_file",
+        "Missing metadata field: page_count",
+        "parser_name is not recorded in metadata.json.",
+        "Source PDF could not be found.",
+        "No table objects were found in document.json."
+      ],
+      "information": {
+        "folder": "data\\extracted\\P4",
+        "source_pdf": null,
+        "real_pdf_page_count": null,
+        "json_pages": 0,
+        "metadata_page_count": null,
+        "document_page_count": null,
+        "json_text_length": 0,
+        "markdown_text_length": 58241,
+        "empty_pages": [],
+        "low_text_pages": [],
+        "total_tables": 0,
+        "tables_with_readable_text": 0,
+        "total_pictures": 0,
+        "duplicate_text_occurrences": 0,
+        "found_heading_groups": [
+          "abstract",
+          "introduction",
+          "method",
+          "experiments",
+          "conclusion",
+          "references"
+        ],
+        "missing_heading_groups": []
+      }
+    }
+  },
+  "total_failures": 8,
+  "total_warnings": 24
+}

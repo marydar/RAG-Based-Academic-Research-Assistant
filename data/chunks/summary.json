@@ -2,59 +2,33 @@
   {
     "paper_id": "P1",
     "short_name": "DETR",
-    "chunk_count": 35,
-    "sections": [
-      "abstract",
-      "conclusion",
-      "experiments",
-      "introduction",
-      "methodology",
-      "references",
-      "related_work"
-    ]
+    "chunk_count": 80,
+    "text_chunk_count": 69,
+    "table_chunk_count": 11,
+    "retrieval_enabled_count": 53
   },
   {
     "paper_id": "P2",
     "short_name": "Deformable DETR",
-    "chunk_count": 30,
-    "sections": [
-      "abstract",
-      "conclusion",
-      "experiments",
-      "introduction",
-      "methodology",
-      "references",
-      "related_work"
-    ]
+    "chunk_count": 65,
+    "text_chunk_count": 55,
+    "table_chunk_count": 10,
+    "retrieval_enabled_count": 42
   },
   {
     "paper_id": "P3",
     "short_name": "Conditional DETR",
-    "chunk_count": 29,
-    "sections": [
-      "abstract",
-      "conclusion",
-      "experiments",
-      "introduction",
-      "methodology",
-      "references",
-      "related_work",
-      "results"
-    ]
+    "chunk_count": 60,
+    "text_chunk_count": 44,
+    "table_chunk_count": 16,
+    "retrieval_enabled_count": 49
   },
   {
     "paper_id": "P4",
     "short_name": "DAB-DETR",
-    "chunk_count": 33,
-    "sections": [
-      "abstract",
-      "appendix",
-      "conclusion",
-      "experiments",
-      "introduction",
-      "methodology",
-      "references",
-      "related_work"
-    ]
+    "chunk_count": 81,
+    "text_chunk_count": 59,
+    "table_chunk_count": 22,
+    "retrieval_enabled_count": 70
   }
 ]

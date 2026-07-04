@@ -1,7 +1,11 @@
 {
   "model_name": "intfloat/multilingual-e5-small",
-  "embedding_count": 127,
+  "model_source": "local model folder",
+  "embedding_count": 286,
   "embedding_dimension": 384,
   "normalized": true,
-  "max_length": 512
+  "max_length": 512,
+  "batch_size": 4,
+  "minimum_vector_norm": 0.9999998807907104,
+  "maximum_vector_norm": 1.0000001192092896
 }

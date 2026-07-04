@@ -3,6 +3,7 @@
 <!-- SECTION: front_matter | PAGES: 1-1 -->
 ## Front Matter
 
+<!-- PAGE 1 -->
 ## Conditional DETR for Fast Training Convergence
 
 Depu Meng 1
@@ -22,6 +23,7 @@ Microsoft Research Asia
 <!-- SECTION: abstract | PAGES: 1-1 -->
 ## Abstract
 
+<!-- PAGE 1 -->
 The recently-developed DETR approach applies the transformer encoder and decoder architecture to object detection and achieves promising performance. In this paper, we handle the critical issue, slow training convergence, and present a conditional cross-attention mechanism for fast DETR training. Our approach is motivated by that the cross-attention in DETR relies highly on the content embeddings for localizing the four extremities and predicting the box, which increases the need for high-quality content embeddings and thus the training difficulty.
 
 Our approach, named conditional DETR, learns a conditional spatial query from the decoder embedding for decoder multi-head cross-attention. The benefit is that through the conditional spatial query, each cross-attention head is able to attend to a band containing a distinct region, e.g., one object extremity or a region inside the object box. This narrows down the spatial range for localizing the distinct regions for object classification and box regression, thus relaxing the dependence on the content embeddings and easing the training. Empirical results show that conditional DETR converges 6 . 7 × faster for the backbones R 50 and R 101 and 10 × faster for stronger backbones DC 5 -R 50 and DC 5 -R 101 . Code is available at https: //github.com/Atten4Vis/ConditionalDETR .
@@ -29,6 +31,7 @@ Our approach, named conditional DETR, learns a conditional spatial query from th
 <!-- SECTION: introduction | PAGES: 1-2 -->
 ## Introduction
 
+<!-- PAGE 1 -->
 The DEtection TRansformer (DETR) method [3] applies the transformer encoder and decoder architecture to object detection and achieves good performance. It effectively eliminates the need for many hand-crafted components, including non-maximum suppression and anchor generation.
 
 The DETR approach suffers from slow convergence on training, and needs 500 training epochs to get good performance. The very recent work, deformable DETR [53], handles this issue by replacing the global dense attention (self-attention and cross-attention) with deformable attention that attends to a small set of key sampling points and using the high-resolution and multi-scale encoder. Instead, we still use the global dense attention and propose an improved decoder cross-attention mechanism for accelerating the training process.
@@ -47,6 +50,7 @@ Figure 1 (the second row) shows that the spatial attention weight maps from the 
 
 1 The minor AP drop 1 . 4 is reported on R 50 with 300 epochs in Table 3 from [3]. We empirically got the consistent observation: the AP drops to 34 . 0 from 34 . 9 for 50 training epochs.
 
+<!-- PAGE 2 -->
 Figure 2. Convergence curves for conditional DETR-DC5-R50 and DETR-DC5-R50 on COCO 2017 val . The conditional DETR is trained for 50 , 75 , 108 epochs. Conditional DETR training is converged much faster than DETR.
 
 <!-- image -->
@@ -60,6 +64,7 @@ Weempirically observe that using the spatial queries and keys, each cross-attent
 <!-- SECTION: related_work | PAGES: 2-3 -->
 ## Related Work
 
+<!-- PAGE 2 -->
 Anchor-based and anchor-free detection. Most existing object detection approaches make predictions from initial guesses that are carefully designed. There are two main initial guesses: anchor boxes or object centers. The an- chor box-based methods inherit the ideas from the proposalbased method, Fast R-CNN. Example methods include Faster R-CNN [9], SSD [26], YOLOv2 [31], YOLOv3 [32], YOLOv4 [1], RetinaNet [24], Cascade R-CNN [2], Libra R-CNN [29], TSD [35] and so on.
 
 The anchor-free detectors predict the boxes at points near the object centers. Typical methods include YOLOv1 [30], CornerNet [21], ExtremeNet [50], CenterNet [49, 6], FCOS [39] and others [23, 28, 52, 19, 51, 22, 15, 46, 47].
@@ -76,11 +81,13 @@ These methods learn from the input the convolutional kernel weights and then app
 
 Transformers. The transformer [40] relies on the at-
 
+<!-- PAGE 3 -->
 tention mechanism, self-attention and cross-attention, to draw global dependencies between the input and the output. There are several works closely related to our approach. Gaussian transformer [11] and T-GSA (Transformer with Gaussian-weighted self-attention) [18], followed by SMCA [7], attenuate the attention weights according to the distance between target and context symbols with learned or human-crafted Gaussian variance. Similar to ours, TUPE [17] computes the attention weight also from the spatial attention weight and the content attention weight. Instead, our approach mainly focuses on the attention attenuation mechanism in a learnable form other than a Gaussian function, and potentially benefits speech enhancement [18] and natural language inference [11].
 
 <!-- SECTION: methodology | PAGES: 3-5 -->
 ## Methodology
 
+<!-- PAGE 3 -->
 ## 3.1. Overview
 
 Pipeline. The proposed approach follows detection transformer (DETR), an end-to-end object detector, and predicts all the objects at once without the need for NMS or anchor generation. The architecture consists of a CNN backbone, a transformer encoder, a transformer decoder, and object class and box position predictors. The transformer encoder aims to improve the content embeddings output from the CNN backbone. It is a stack of multiple encoder layers, where each layer mainly consists of a self-attention layer and a feed-forward layer.
@@ -107,6 +114,7 @@ The DETR decoder cross-attention mechanism takes three inputs: queries, keys and
 
 In the original DETR approach, each query is formed by adding a content query c q (the embedding output from the decoder self-attention), and a spatial query p q (i.e., the object query o q ). In our implementation, there are N = 300
 
+<!-- PAGE 4 -->
 object queries, and accordingly there are N queries 2 , each query outputting a candidate detect result in one decoder layer.
 
 The attention weight is based on the dot-product between the query and the key, used for attention weight computation,
@@ -159,6 +167,7 @@ Visualization. Figure 4 visualizes the attention weight maps for each head: the 
 
 4 The duplicates might be different for models trained several times, but the detection performance is almost the same.
 
+<!-- PAGE 5 -->
 Figure 4. Illustrating the spatial attention weight maps (the first row), the content attention weight maps (the second row), and the combined attention weight maps (the third row) computed from our conditional DETR. The attention weight maps are from 5 heads out of the 8 heads and are responsible for the four extremities and a region inside the object box. The content attention weight maps for the four extremities highlight scattered regions inside the box (bicycle) or similar regions in two object instances (cow), and the corresponding combined attention weight maps highlight the extremity regions with the help of the spatial attention weight maps. The combined attention weight map for the region inside the object box mainly depends on the spatial attention weight map, which implies that the representation of a region inside the object might encode enough class information. The maps are from conditional DETR-R 50 trained with 50 epochs.
 
 <!-- image -->
@@ -180,10 +189,12 @@ The two effects are realized in the spatial embedding space through applying the
 <!-- SECTION: experiments | PAGES: 5-6 -->
 ## Experiments
 
+<!-- PAGE 5 -->
 Architecture. Our architecture is almost the same with the DETR architecture [3] and contains the CNN backbone, transformer encoder, transformer decoder, prediction feedforward networks (FFNs) following each decoder layer (the last decoder layer and the 5 internal decoder layers) with parameters shared among the 6 prediction FFNs. The hyperparameters are the same as DETR.
 
 The main architecture difference is that we introduce the conditional spatial embeddings as the spatial queries for conditional multi-head cross-attention and that the spatial query (key) and the content query (key) are combined through concatenation other than addition. In the first crossattention layer there are no decoder content embeddings, we make simple changes based on the DETR implementation [3]: concatenate the positional embedding predicted from the object query (the positional embedding) into the original query (key).
 
+<!-- PAGE 6 -->
 Table 1. Comparison of conditional DETR with DETR on COCO 2017 val . Our conditional DETR approach for high-resolution backbones DC 5 -R 50 and DC 5 -R 101 is 10 × faster than the original DETR, and for low-resolution backbones R 50 and R 101 6 . 67 × faster. Conditional DETR is empirically superior to other two single-scale DETR variants. ∗ The results of deformable DETR are from the GitHub repository provided by the authors of deformable DETR [53].
 
 | Model                            | #epochs                          | GFLOPs                           | #params (M)                      | AP                               | AP 50                            | AP 75                            | AP S                             | AP M                             | AP L                             |
@@ -221,6 +232,7 @@ Loss function. We follow DETR [3] to find an optimal bipartite matching [20] bet
 <!-- SECTION: experiments | PAGES: 6-7 -->
 ## Experiments
 
+<!-- PAGE 6 -->
 ## 4.1. Setting
 
 Dataset. We perform the experiments on the COCO 2017 [25] detection dataset. The dataset contains about 118 K training images and 5 K validation ( val ) images.
@@ -229,6 +241,7 @@ Training. We follow the DETR training protocol [3]. The backbone is the ImageNet
 
 We use the augmentation scheme same as DETR [3]: resize the input image such that the short side is at least 480 and at most 800 pixels and the long size is at most 1333 pixels; randomly crop the image such that a training image is
 
+<!-- PAGE 7 -->
 Table 2. Results for multi-scale and higher-resolution DETR variants. We do not expect that our approach performs on par as our approach (single-scale, 16 × resolution) does not use a strong multi-scale or 8 × resolution encoder. Surprisingly, the AP scores of our approach with DC 5 -R 50 and DC 5 -R 101 are close to the two multi-scale and higher-resolution DETR variants.
 
 | Model                      |   #epochs |   GFLOPs | #params (M)   | AP     | AP 50   | AP 75   | AP S   | AP M   | AP L   |
@@ -254,6 +267,7 @@ cropped with probability 0 . 5 to a random rectangular patch. Evaluation. We use
 <!-- SECTION: results | PAGES: 7-8 -->
 ## Results
 
+<!-- PAGE 7 -->
 Comparison to DETR. We compare the proposed conditional DETR to the original DETR [3]. We follow [3] and report the results over four backbones: ResNet50 [12], ResNet101 , and their 16 × -resolution extensions DC 5 -ResNet50 and DC 5 -ResNet101 .
 
 The corresponding DETR models are named as DETRR 50 , DETR-R 101 , DETR-DC5-R 50 , and DETR-DC5R 101 , respectively. Our models are named as conditional DETR-R 50 , conditional DETR-R 101 , conditional DETRDC5-R 50 , and conditional DETR-DC5-R 101 , respectively.
@@ -270,6 +284,7 @@ The comparisons in Table 2 surprisingly show that our approach on DC 5 -R 50 ( 1
 
 The performance of our approach is also on par with TSP-FCOS and TSP-RCNN. The two methods contain a transformer encoder over a small number of selected positions/regions (feature of interest in TSP-FCOS and region proposals in TSP-RCNN) without using the transformer decoder, are extensions of FCOS [39] and Faster RCNN [33].
 
+<!-- PAGE 8 -->
 Table 3. Ablation study for the ways forming the conditional spatial query. CSQ = our proposed conditional spatial query scheme. Please see the first two paragraphs in Section 5.3 for the meanings of CSQ variants. Our proposed CSQ manner performs better. The backbone ResNet50 is adopted.
 
 | Exp.   | CSQ-C   | CSQ-T   | CSQ-P   | CSQ-I   | CSQ    |
@@ -309,6 +324,7 @@ Figure 5. The empirical results for different forms of linear projections that a
 <!-- SECTION: conclusion | PAGES: 8-8 -->
 ## Conclusion
 
+<!-- PAGE 8 -->
 We present a simple conditional cross-attention mechanism. The key is to learn a spatial query from the corresponding reference point and decoder embedding. The spatial query contains the spatial information mined for the class and box prediction in the previous decoder layer, and leads to spatial attention weight maps highlighting the bands containing extremities and small regions inside the object box. This shrinks the spatial range for the content query to localize the distinct regions, thus relaxing the dependence on the content query and reducing the training difficulty. In the future, we will study the proposed conditional cross-attention mechanism for human pose estimation [8, 41, 36] and line segment detection [43].
 
 Acknowledgments. We thank the anonymous reviewers for their insightful comments and suggestions on our manuscript.
@@ -316,6 +332,7 @@ Acknowledgments. We thank the anonymous reviewers for their insightful comments 
 <!-- SECTION: references | PAGES: 9-10 -->
 ## References
 
+<!-- PAGE 9 -->
 - [1] Alexey Bochkovskiy, Chien-Yao Wang, and HongYuan Mark Liao. Yolov4: Optimal speed and accuracy of object detection. CoRR , abs/2004.10934, 2020. 2
 - [2] Zhaowei Cai and Nuno Vasconcelos. Cascade R-CNN: delving into high quality object detection. In CVPR , 2018. 2
 - [3] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-toend object detection with transformers. In ECCV , 2020. 1, 2, 3, 4, 5, 6, 7
@@ -358,6 +375,7 @@ Acknowledgments. We thank the anonymous reviewers for their insightful comments 
 - [40] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin. Attention is all you need. In NeurIPS , 2017. 2
 - [41] Jingdong Wang, Ke Sun, Tianheng Cheng, Borui Jiang, Chaorui Deng, Yang Zhao, Dong Liu, Yadong Mu, Mingkui
 
+<!-- PAGE 10 -->
 Tan, Xinggang Wang, Wenyu Liu, and Bin Xiao. Deep high-resolution representation learning for visual recognition. TPAMI , 2019. 8
 
 - [42] Xinlong Wang, Rufeng Zhang, Tao Kong, Lei Li, and Chunhua Shen. Solov2: Dynamic and fast instance segmentation. In NeurIPS , 2020. 2

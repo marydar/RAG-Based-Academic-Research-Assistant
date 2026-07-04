@@ -1,4 +1,4 @@
-"""Detect the main sections of the selected scientific papers."""
+"""Detect the main sections of each paper and preserve page information."""
 
 import json
 import re
@@ -7,23 +7,37 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-PAPERS_PATH = PROJECT_ROOT / "data" / "papers.json"
-EXTRACTED_DIR = PROJECT_ROOT / "data" / "extracted"
-SECTIONS_DIR = PROJECT_ROOT / "data" / "sections"
+PAPERS_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "papers.json"
+)
+
+EXTRACTED_DIR = (
+    PROJECT_ROOT
+    / "data"
+    / "extracted"
+)
+
+SECTIONS_DIR = (
+    PROJECT_ROOT
+    / "data"
+    / "sections"
+)
 
 
 PAGE_PATTERN = re.compile(
-    r"<!--\s*PAGE\s+(\d+)\s*\|\s*ENGINE:.*?-->",
+    r"<!--\s*PAGE\s*:?\s*(\d+).*?-->",
     re.IGNORECASE,
 )
 
 INLINE_ABSTRACT_PATTERN = re.compile(
-    r"^Abstract\s*[.:]\s*(.*)$",
+    r"^Abstract\s*[:.-]\s*(.+)$",
     re.IGNORECASE,
 )
 
 
-SECTION_NAMES = {
+SECTION_TITLES = {
     "front_matter": "Front Matter",
     "abstract": "Abstract",
     "introduction": "Introduction",
@@ -37,19 +51,28 @@ SECTION_NAMES = {
 }
 
 
-def load_json(path: Path):
-    """Load a JSON file."""
+def load_json(path):
+    """Load a UTF-8 JSON file."""
 
-    with path.open("r", encoding="utf-8") as file:
+    with path.open(
+        "r",
+        encoding="utf-8",
+    ) as file:
         return json.load(file)
 
 
-def save_json(path: Path, data):
-    """Save data as JSON."""
+def save_json(path, data):
+    """Save data as UTF-8 JSON."""
 
-    path.parent.mkdir(parents=True, exist_ok=True)
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
-    with path.open("w", encoding="utf-8") as file:
+    with path.open(
+        "w",
+        encoding="utf-8",
+    ) as file:
         json.dump(
             data,
             file,
@@ -58,34 +81,40 @@ def save_json(path: Path, data):
         )
 
 
-def clean_heading(text: str) -> str:
-    """Remove Markdown signs and section numbers."""
+def normalize_heading(text):
+    """Normalize a Markdown or numbered heading."""
 
     text = text.strip()
 
-    # Remove Markdown heading symbols.
     text = re.sub(
         r"^#{1,6}\s*",
         "",
         text,
     )
 
-    # Remove section numbers such as 1, 2.1 or 3.2.1.
     text = re.sub(
         r"^\d+(?:\.\d+)*[.)]?\s*",
         "",
         text,
     )
 
-    text = text.strip(" .:-–—")
+    text = re.sub(
+        r"\s+",
+        " ",
+        text,
+    )
 
-    return text.lower()
+    return text.strip(
+        " .:-–—"
+    ).lower()
 
 
-def get_section_name(heading: str):
-    """Convert a paper heading to a standard section name."""
+def map_heading_to_section(heading):
+    """Map a paper heading to one standard section."""
 
-    title = clean_heading(heading)
+    title = normalize_heading(
+        heading
+    )
 
     if title == "abstract":
         return "abstract"
@@ -113,8 +142,8 @@ def get_section_name(heading: str):
         "approach",
         "proposed method",
         "proposed approach",
-        "model architecture",
         "architecture",
+        "model architecture",
         "the detr model",
         "deformable detr",
         "conditional detr",
@@ -122,6 +151,19 @@ def get_section_name(heading: str):
         "dynamic anchor boxes",
     }:
         return "methodology"
+
+    if title in {
+        "experiment",
+        "experiments",
+        "experimental setup",
+        "experimental settings",
+        "implementation details",
+        "training details",
+        "evaluation",
+        "ablation study",
+        "ablation studies",
+    }:
+        return "experiments"
 
     if title in {
         "results",
@@ -132,19 +174,6 @@ def get_section_name(heading: str):
         "performance comparison",
     }:
         return "results"
-
-    if title in {
-        "experiments",
-        "experiment",
-        "experimental setup",
-        "experimental settings",
-        "implementation details",
-        "training details",
-        "evaluation",
-        "ablation study",
-        "ablation studies",
-    }:
-        return "experiments"
 
     if title in {
         "conclusion",
@@ -163,85 +192,146 @@ def get_section_name(heading: str):
     }:
         return "references"
 
-    if title.startswith("appendix"):
+    if title.startswith(
+        "appendix"
+    ):
         return "appendix"
 
     return None
 
 
-def detect_heading(line: str):
-    """Return a standard section name if the line is a heading."""
+def detect_heading(line):
+    """Detect only valid section headings."""
 
     stripped = line.strip()
 
     if not stripped:
         return None
 
-    # Markdown headings created by Docling.
+    # Markdown heading
     if stripped.startswith("#"):
-        return get_section_name(stripped)
+        return map_heading_to_section(
+            stripped
+        )
 
-    # Numbered headings such as "1 Introduction".
+    # Numbered heading such as:
+    # 1 Introduction
+    # 4.2 Experiments
     numbered_match = re.match(
         r"^\d+(?:\.\d+)*[.)]?\s+(.+)$",
         stripped,
     )
 
     if numbered_match:
-        title = numbered_match.group(1)
+        heading_text = (
+            numbered_match.group(1)
+        )
 
-        # Avoid treating long numbered sentences as headings.
-        if len(title.split()) <= 12:
-            return get_section_name(title)
+        if (
+            len(
+                heading_text.split()
+            )
+            <= 12
+        ):
+            return map_heading_to_section(
+                heading_text
+            )
 
-    # Unnumbered short headings.
+    # Plain heading such as References
     if len(stripped.split()) <= 6:
-        return get_section_name(stripped)
+        return map_heading_to_section(
+            stripped
+        )
 
     return None
 
 
 def create_section(
-    paper_id: str,
-    section_name: str,
-    original_heading: str,
-    start_page: int,
-    end_page: int,
-    lines: list[str],
-    number: int,
+    paper_id,
+    section_name,
+    original_heading,
+    page_blocks,
+    section_number,
 ):
-    """Create one section dictionary."""
+    """Create a section with separate blocks for each page."""
 
-    text = "\n".join(lines).strip()
+    blocks = []
 
-    if not text:
+    for page_block in page_blocks:
+        text = "\n".join(
+            page_block["lines"]
+        ).strip()
+
+        if not text:
+            continue
+
+        text = re.sub(
+            r"\n{3,}",
+            "\n\n",
+            text,
+        )
+
+        blocks.append(
+            {
+                "page_number": int(
+                    page_block[
+                        "page_number"
+                    ]
+                ),
+                "text": text,
+            }
+        )
+
+    if not blocks:
         return None
 
-    text = re.sub(
-        r"\n{3,}",
-        "\n\n",
-        text,
+    full_text = "\n\n".join(
+        block["text"]
+        for block in blocks
+    )
+
+    section_id = (
+        f"{paper_id}_"
+        f"{section_name}_"
+        f"{section_number:02d}"
     )
 
     return {
-        "section_id": (
-            f"{paper_id}_{section_name}_{number:02d}"
+        "section_id": section_id,
+        "canonical_name": (
+            section_name
         ),
-        "canonical_name": section_name,
-        "display_name": SECTION_NAMES[section_name],
-        "original_heading": original_heading,
-        "page_start": start_page,
-        "page_end": end_page,
-        "word_count": len(text.split()),
-        "character_count": len(text),
-        "text": text,
+        "display_name": (
+            SECTION_TITLES[
+                section_name
+            ]
+        ),
+        "original_heading": (
+            original_heading
+        ),
+        "page_start": blocks[0][
+            "page_number"
+        ],
+        "page_end": blocks[-1][
+            "page_number"
+        ],
+        "word_count": len(
+            full_text.split()
+        ),
+        "character_count": len(
+            full_text
+        ),
+        "text": full_text,
+        "blocks": blocks,
     }
 
 
-def detect_paper_sections(paper: dict):
-    """Detect sections in one paper."""
+def detect_paper_sections(paper):
+    """Detect sections for one paper."""
 
-    paper_id = paper["paper_id"]
+    paper_id = paper[
+        "paper_id"
+    ]
 
     markdown_path = (
         EXTRACTED_DIR
@@ -251,7 +341,8 @@ def detect_paper_sections(paper: dict):
 
     if not markdown_path.exists():
         raise FileNotFoundError(
-            f"File not found: {markdown_path}"
+            f"Markdown file not found: "
+            f"{markdown_path}"
         )
 
     markdown = markdown_path.read_text(
@@ -259,94 +350,153 @@ def detect_paper_sections(paper: dict):
     )
 
     sections = []
-    counters = {}
+    section_counters = {}
 
     current_page = 1
-    current_section = "front_matter"
-    current_heading = "Front Matter"
-    start_page = 1
-    end_page = 1
-    current_lines = []
+    current_section = (
+        "front_matter"
+    )
+    current_heading = (
+        "Front Matter"
+    )
+    current_blocks = []
+
+    def add_line(line):
+        """Add a line to the current page block."""
+
+        if (
+            not current_blocks
+            or current_blocks[-1][
+                "page_number"
+            ]
+            != current_page
+        ):
+            current_blocks.append(
+                {
+                    "page_number": (
+                        current_page
+                    ),
+                    "lines": [],
+                }
+            )
+
+        current_blocks[-1][
+            "lines"
+        ].append(line)
 
     def save_current_section():
-        """Save the currently collected section."""
+        """Save the current section."""
 
-        nonlocal current_lines
+        nonlocal current_blocks
 
-        if not current_lines:
+        if not current_blocks:
             return
 
-        counters[current_section] = (
-            counters.get(current_section, 0) + 1
+        section_counters[
+            current_section
+        ] = (
+            section_counters.get(
+                current_section,
+                0,
+            )
+            + 1
         )
 
         section = create_section(
             paper_id=paper_id,
-            section_name=current_section,
-            original_heading=current_heading,
-            start_page=start_page,
-            end_page=end_page,
-            lines=current_lines,
-            number=counters[current_section],
+            section_name=(
+                current_section
+            ),
+            original_heading=(
+                current_heading
+            ),
+            page_blocks=(
+                current_blocks
+            ),
+            section_number=(
+                section_counters[
+                    current_section
+                ]
+            ),
         )
 
         if section is not None:
-            sections.append(section)
+            sections.append(
+                section
+            )
 
-        current_lines = []
+        current_blocks = []
 
     for line in markdown.splitlines():
-        page_match = PAGE_PATTERN.match(line.strip())
-
-        if page_match:
-            current_page = int(page_match.group(1))
-            continue
-
         stripped = line.strip()
 
-        # Detect inline abstract:
-        # Abstract. We present a new method...
-        abstract_match = INLINE_ABSTRACT_PATTERN.match(
-            stripped
+        page_match = (
+            PAGE_PATTERN.fullmatch(
+                stripped
+            )
+        )
+
+        if page_match:
+            current_page = int(
+                page_match.group(1)
+            )
+            continue
+
+        abstract_match = (
+            INLINE_ABSTRACT_PATTERN.match(
+                stripped
+            )
         )
 
         if abstract_match:
             save_current_section()
 
-            current_section = "abstract"
-            current_heading = "Abstract"
-            start_page = current_page
-            end_page = current_page
+            current_section = (
+                "abstract"
+            )
+            current_heading = (
+                "Abstract"
+            )
 
-            abstract_text = abstract_match.group(1)
+            abstract_text = (
+                abstract_match.group(1)
+            ).strip()
 
             if abstract_text:
-                current_lines.append(abstract_text)
+                add_line(
+                    abstract_text
+                )
 
             continue
 
-        detected_section = detect_heading(line)
+        detected_section = (
+            detect_heading(line)
+        )
 
-        if detected_section is not None:
+        if detected_section:
             save_current_section()
 
-            current_section = detected_section
-            current_heading = clean_heading(line).title()
-            start_page = current_page
-            end_page = current_page
+            current_section = (
+                detected_section
+            )
+
+            current_heading = (
+                normalize_heading(
+                    line
+                ).title()
+            )
 
             continue
 
-        current_lines.append(line)
-
-        if stripped:
-            end_page = current_page
+        add_line(line)
 
     save_current_section()
 
     found_sections = sorted(
         {
-            section["canonical_name"]
+            section[
+                "canonical_name"
+            ]
             for section in sections
         }
     )
@@ -354,46 +504,92 @@ def detect_paper_sections(paper: dict):
     return {
         "paper": paper,
         "source_file": str(
-            markdown_path.relative_to(PROJECT_ROOT)
+            markdown_path.relative_to(
+                PROJECT_ROOT
+            )
         ).replace("\\", "/"),
-        "section_count": len(sections),
-        "found_sections": found_sections,
+        "section_count": len(
+            sections
+        ),
+        "found_sections": (
+            found_sections
+        ),
         "sections": sections,
     }
 
 
-def create_normalized_markdown(data: dict) -> str:
-    """Create readable Markdown from detected sections."""
+def create_normalized_markdown(data):
+    """Create readable page-aware Markdown."""
 
-    output = [
+    lines = [
         f"# {data['paper']['title']}",
         "",
     ]
 
-    for section in data["sections"]:
-        output.append(
+    for section in data[
+        "sections"
+    ]:
+        lines.append(
             f"<!-- SECTION: "
-            f"{section['canonical_name']} | "
-            f"PAGES: "
+            f"{section['canonical_name']} "
+            f"| PAGES: "
             f"{section['page_start']}-"
             f"{section['page_end']} -->"
         )
 
-        output.append(
-            f"## {section['display_name']}"
+        lines.append(
+            f"## "
+            f"{section['display_name']}"
         )
 
-        output.append("")
-        output.append(section["text"])
-        output.append("")
+        lines.append("")
 
-    return "\n".join(output).strip() + "\n"
+        for block in section[
+            "blocks"
+        ]:
+            lines.append(
+                f"<!-- PAGE "
+                f"{block['page_number']} -->"
+            )
+
+            lines.append(
+                block["text"]
+            )
+
+            lines.append("")
+
+    return (
+        "\n".join(lines).strip()
+        + "\n"
+    )
 
 
 def process_all_papers():
-    """Detect sections for all papers."""
+    """Detect sections for all configured papers."""
 
-    papers = load_json(PAPERS_PATH)
+    papers_data = load_json(
+        PAPERS_PATH
+    )
+
+    if isinstance(
+        papers_data,
+        dict,
+    ):
+        papers = papers_data.get(
+            "papers",
+            [],
+        )
+    else:
+        papers = papers_data
+
+    if not isinstance(
+        papers,
+        list,
+    ) or not papers:
+        raise ValueError(
+            "papers.json must contain "
+            "a non-empty list."
+        )
 
     SECTIONS_DIR.mkdir(
         parents=True,
@@ -402,10 +598,14 @@ def process_all_papers():
 
     summary = []
 
-    print(f"Found {len(papers)} papers.")
+    print(
+        f"Found {len(papers)} papers."
+    )
 
     for paper in papers:
-        paper_id = paper["paper_id"]
+        paper_id = paper[
+            "paper_id"
+        ]
 
         print()
         print(
@@ -413,21 +613,30 @@ def process_all_papers():
             f"{paper['short_name']}"
         )
 
-        data = detect_paper_sections(paper)
+        data = detect_paper_sections(
+            paper
+        )
 
-        output_dir = SECTIONS_DIR / paper_id
+        output_dir = (
+            SECTIONS_DIR
+            / paper_id
+        )
+
         output_dir.mkdir(
             parents=True,
             exist_ok=True,
         )
 
         save_json(
-            output_dir / "sections.json",
+            output_dir
+            / "sections.json",
             data,
         )
 
         normalized_markdown = (
-            create_normalized_markdown(data)
+            create_normalized_markdown(
+                data
+            )
         )
 
         (
@@ -439,31 +648,50 @@ def process_all_papers():
         )
 
         print(
-            f"  Sections: {data['section_count']}"
+            f"  Sections: "
+            f"{data['section_count']}"
         )
 
         print(
             "  Found: "
-            + ", ".join(data["found_sections"])
+            + ", ".join(
+                data[
+                    "found_sections"
+                ]
+            )
         )
 
         summary.append(
             {
                 "paper_id": paper_id,
-                "short_name": paper["short_name"],
-                "section_count": data["section_count"],
-                "found_sections": data["found_sections"],
+                "short_name": (
+                    paper[
+                        "short_name"
+                    ]
+                ),
+                "section_count": (
+                    data[
+                        "section_count"
+                    ]
+                ),
+                "found_sections": (
+                    data[
+                        "found_sections"
+                    ]
+                ),
             }
         )
 
     save_json(
-        SECTIONS_DIR / "summary.json",
+        SECTIONS_DIR
+        / "summary.json",
         summary,
     )
 
     print()
     print(
-        "Section detection completed successfully."
+        "Section detection "
+        "completed successfully."
     )
 
 

@@ -1,0 +1,29 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+.env.local
+
+# Generated RAG data
+data/chroma_db/
+data/embeddings/
+
+# Local models and cache
+data/models/
+data/model_cache_e5_v2/
+
+# Large files
+*.npz
+*.safetensors
+*.bin
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
