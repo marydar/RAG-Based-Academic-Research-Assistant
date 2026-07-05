@@ -38,6 +38,15 @@ DB_PATH = (
 
 COLLECTION_NAME = "academic_research_chunks"
 
+def get_chunk_id(chunk):
+    """Return the string ID of a chunk."""
+
+    chunk_id = chunk.get("chunk_id")
+
+    if not chunk_id:
+        raise ValueError("A chunk has no chunk_id.")
+
+    return str(chunk_id)
 
 def load_chunks():
     """Load all chunks."""
