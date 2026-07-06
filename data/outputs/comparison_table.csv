@@ -1,0 +1,5 @@
+paper,model,dataset,backbone,AP,AP50,AP75,source_page
+DETR,DETR-R101,COCO,R101,33.0,,,16
+Deformable DETR,Deformable DETR,COCO 2017,ResNeXt-101 + DCN,52.3,71.9,58.1,9
+Conditional DETR,DAB-DETR,COCO-Instance,DC5-R50,43.8,42.2,41.9,7
+DAB-DETR,DAB-DETR,COCO 2017 validation set,ResNet-50-DC5,45.8,63.1,44.9,9

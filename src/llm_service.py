@@ -72,7 +72,6 @@ class LLMService:
         """
         messages = []
 
-        print("hello1")
         if history:
             messages.extend(history)
         else:
@@ -83,7 +82,6 @@ class LLMService:
                 }
             )
 
-        print("hello2")
         messages.append(
             {
                 "role": "user",
@@ -92,7 +90,6 @@ class LLMService:
         )
 
         try:
-            print("hello3")
             response = self.client.chat(
             model=self.model,
             messages=messages,
@@ -101,7 +98,6 @@ class LLMService:
                 "temperature": self.temperature,
             },
 )
-            print(response)
             return response["message"]["content"].strip()
             
 
@@ -119,11 +115,8 @@ class LLMService:
 
         try:
 
-            print("hello")
             reply = self.chat("Hello!")
-            print(reply+"hello")
             return len(reply) > 0
 
         except Exception:
-            print("error")
             return False
