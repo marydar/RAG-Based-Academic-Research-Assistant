@@ -425,9 +425,9 @@ class SurveyGenerator:
 
         print()
 
-        print(
-            f"Survey saved to:\n{SURVEY_PATH}"
-        )
+        # print(
+        #     f"Survey saved to:\n{SURVEY_PATH}"
+        # )
 
     def run(self):
 

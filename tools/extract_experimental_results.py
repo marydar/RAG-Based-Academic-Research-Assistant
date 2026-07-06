@@ -249,7 +249,7 @@ class ExperimentalResultsExtractor:
 
             writer.writerows(rows)
 
-    print(f"\nSaved to:\n{CSV_PATH}")
+    # print(f"\nSaved to:\n{CSV_PATH}")
     
     def run(self):
         """

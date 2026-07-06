@@ -87,9 +87,9 @@ class ComparisonService:
             index=False,
         )
 
-        print(
-            f"Comparison table saved:\n{TABLE_PATH}"
-        )
+        # print(
+        #     f"Comparison table saved:\n{TABLE_PATH}"
+        # )
 
     def get_best_paper(self, dataframe):
         """
@@ -143,9 +143,9 @@ class ComparisonService:
 
         plt.close()
 
-        print(
-            f"Chart saved:\n{CHART_PATH}"
-        )
+        # print(
+        #     f"Chart saved:\n{CHART_PATH}"
+        # )
 
     def build_prompt(
         self,
@@ -220,9 +220,9 @@ Do not use markdown tables.
 
             file.write(analysis)
 
-        print(
-            f"Analysis saved:\n{ANALYSIS_PATH}"
-        )
+        # print(
+        #     f"Analysis saved:\n{ANALYSIS_PATH}"
+        # )
 
     def run(self):
         """

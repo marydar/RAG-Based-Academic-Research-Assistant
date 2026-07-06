@@ -2,6 +2,11 @@
 Handles questions that cannot be answered from the retrieved papers.
 """
 
+import sys
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from src.llm_service import LLMService
 from src.rag_service import RAGService
 

@@ -2,7 +2,12 @@
 Connects Retriever + LLM to create a full RAG system.
 """
 
+
 from typing import List, Dict, Any
+import sys
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.retriever import search
 from src.llm_service import LLMService
@@ -75,8 +80,6 @@ class RAGService:
 
         # 3. Build context
         context = self._build_context(chunks)
-        print(context)
-
         # 4. Build final prompt (IMPORTANT PART)
         prompt = f"""
 You are an academic research assistant.
