@@ -266,9 +266,6 @@ Do not use markdown tables.
             analysis
         )
 
-        print()
-
-        print("Comparison completed successfully.")
 
 
 def main():

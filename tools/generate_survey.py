@@ -449,12 +449,6 @@ class SurveyGenerator:
             survey
         )
 
-        print()
-
-        print(
-            "Mini survey generated successfully."
-        )
-
 
 def main():
 
