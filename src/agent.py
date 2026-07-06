@@ -30,13 +30,18 @@ from tools.compare_results import (
 from tools.generate_survey import (
     SurveyGenerator,
 )
-
+from tools.find_research_gap import ResearchGapFinder
+from tools.compare_references import ReferenceComparer
+from tools.compare_limitations import LimitationsComparer
 
 VALID_ACTIONS = {
     "rag",
     "extract_experimental_results",
     "compare_results",
     "generate_survey",
+    "find_research_gap",
+    "compare_references",
+    "compare_limitations",
 }
 
 class Agent:
@@ -105,6 +110,33 @@ class Agent:
         - Generate a survey.
         - Write a literature review.
         - Summarize all papers.
+        
+        5. find_research_gap
+        
+        Examples:
+        - Analyze conclusions.
+        - Find limitations.
+        - Find future work.
+        - Find research opportunities.
+        - Suggest future research directions.
+
+        6. compare_references
+        
+        Examples:
+        - Analyze references.
+        - Compare cited literature.
+        - Compare publication years.
+        - Analyze bibliography.
+        - Historical comparison of references.
+
+        7. compare_limitations
+        
+        Examples:
+        - Compare weaknesses of all methods.
+        - Compare limitations.
+        - Compare disadvantages.
+        - Compare challenges.
+
 
         Return ONLY valid JSON.
 
@@ -248,6 +280,26 @@ class Agent:
                     "answer": f"generation failed:\n{e}",
                     "sources": [],
                 }
+                
+        elif action == "find_research_gap":
+
+            tool = ResearchGapFinder()
+
+            return tool.run()
+
+
+        elif action == "compare_references":
+
+            tool = ReferenceComparer()
+
+            return tool.run()
+
+
+        elif action == "compare_limitations":
+
+            tool = LimitationsComparer()
+
+            return tool.run()
 
         return self.execute_action(
             "rag",

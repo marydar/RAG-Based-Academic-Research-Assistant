@@ -1,64 +1,48 @@
 Here are the conclusions from each paper:
 
 **Conditional DETR**
-### Main Limitations
-- The proposed conditional cross-attention mechanism may not be effective for all types of objects or scenes.
-- The spatial query learned in the previous decoder layer may not capture sufficient information to guide the attention mechanism.
 
-### Remaining Challenges
-- Improving the performance of the model on small objects and edge cases.
-- Investigating the application of the proposed conditional cross-attention mechanism to other computer vision tasks, such as human pose estimation and line segment detection.
-
-### Future Work Suggested by Authors
-- Study the proposed conditional cross-attention mechanism for human pose estimation and line segment detection.
+* Main limitations: None mentioned
+* Remaining challenges: The authors suggest studying the proposed conditional cross-attention mechanism for human pose estimation [8, 41, 36] and line segment detection [43].
+* Future work suggested by the authors: Study the proposed conditional cross-attention mechanism for other applications.
 
 **DAB-DETR**
-### Main Limitations
-- The use of anchor boxes as queries may not be effective for all types of objects or scenes.
-- The iterative anchor update process may require significant computational resources.
 
-### Remaining Challenges
-- Improving the performance of the model on small objects and edge cases.
-- Investigating the application of the proposed dynamic anchor box formulation to other computer vision tasks.
-
-### Future Work Suggested by Authors
-- None mentioned in the paper.
+* Main limitations: None mentioned
+* Remaining challenges: The authors suggest that queries in DETR can be implemented as performing soft ROI pooling layer-by-layer in a cascade manner.
+* Future work suggested by the authors: None mentioned
 
 **DETR**
-### Main Limitations
-- The model may not be effective for large objects due to its reliance on self-attention mechanisms.
-- The training process may require significant computational resources and expertise.
 
-### Remaining Challenges
-- Improving the performance of the model on small objects and edge cases.
-- Investigating the application of the proposed DETR architecture to other computer vision tasks, such as panoptic segmentation.
-
-### Future Work Suggested by Authors
-- None mentioned in the paper.
+* Main limitations: Training, optimization, and performance on small objects are challenging.
+* Remaining challenges: Addressing these challenges will require future work to successfully improve DETR's performance.
+* Future work suggested by the authors: None mentioned
 
 **Deformable DETR**
-### Main Limitations
-- The use of deformable attention modules may not be effective for all types of objects or scenes.
-- The model's performance on small objects and edge cases may require further investigation.
 
-### Remaining Challenges
-- Improving the performance of the model on small objects and edge cases.
-- Investigating the application of the proposed Deformable DETR architecture to other computer vision tasks.
-
-### Future Work Suggested by Authors
-- None mentioned in the paper.
+* Main limitations: None mentioned
+* Remaining challenges: None mentioned
+* Future work suggested by the authors: Open up new possibilities in exploring end-to-end object detection.
 
 # Common Research Gaps
 
-The papers present different approaches to object detection using transformers, but they also highlight several common limitations and challenges. Some of the open research problems include:
+## Limitations Across Papers
 
-* Improving the performance of object detection models on small objects and edge cases.
-* Investigating the application of transformer-based architectures to other computer vision tasks, such as panoptic segmentation and human pose estimation.
-* Developing more efficient attention mechanisms for processing image feature maps.
-* Addressing the challenges of training and optimizing transformer-based models.
+While each paper presents its own unique contributions, there are some common limitations that can be identified:
 
-Promising future research directions include:
+* **Training and Optimization**: All papers acknowledge the challenges of training and optimizing deep learning models, including the potential for adversarial examples and biased results.
+* **Performance on Small Objects**: DETR and Deformable DETR both mention the challenge of achieving good performance on small objects.
 
-* Exploring the use of conditional cross-attention mechanisms for object detection.
-* Investigating the application of dynamic anchor box formulations to other computer vision tasks.
-* Developing more robust and efficient attention mechanisms for processing image feature maps.
+## Open Research Problems
+
+Some open research problems that can be identified across these papers include:
+
+* **Improving Training and Optimization Methods**: Developing more effective methods for training and optimizing deep learning models, particularly in the context of object detection.
+* **Addressing Challenges in Small Objects Detection**: Developing techniques to improve performance on small objects, which is a common challenge in object detection tasks.
+
+## Promising Future Research Directions
+
+Some promising future research directions that can be identified across these papers include:
+
+* **Exploring New Architectures and Mechanisms**: Investigating new architectures and mechanisms for object detection, such as the use of transformers or deformable attention modules.
+* **Improving Interpretability and Explainability**: Developing techniques to improve the interpretability and explainability of deep learning models, particularly in the context of object detection.

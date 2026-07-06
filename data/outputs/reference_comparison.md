@@ -22,39 +22,28 @@
 |   2021 |                  4 |         18 |      0 |                 0 |
 
 
-
 # Reference Statistics
 | Paper | Total References | Oldest Reference | Newest Reference | Average Year |
-|:------|:------------------|:-----------------|:-----------------|:-------------|
+|:------|:-----------------|:-----------------|:-----------------|:-------------|
 | Conditional DETR | 70 | 1995 | 2021 | 2017.0 |
 | DAB-DETR | 50 | 2004 | 2021 | 2018.2 |
 | DETR | 64 | 1955 | 2020 | 2016.2 |
 | Deformable DETR | 53 | 2003 | 2020 | 2016.2 |
 
 # Historical Comparison
-Comparing the papers historically, we can observe that:
-
-* Conditional DETR relies more on classic work from 1995.
-* DAB-DETR cites the newest research, with a significant number of references from 2021.
-* DETR appears to have the broadest literature review, with a large number of references from 2019 and 2020.
-* Deformable DETR builds upon previous DETR-family work, with many references from 2014 and 2015.
+The papers show a varying reliance on classic work, with Conditional DETR citing the oldest reference (1995) and DAB-DETR relying on the most recent research (2021). DETR appears to have the broadest literature review, with references spanning from 1955 to 2020. Deformable DETR builds upon previous DETR-family work, as seen in its publication year distribution.
 
 # Research Trend
-The cited literature evolves over time, with:
-
-* Older references (pre-2003) being less common in recent papers.
-* Recent references (2019 onwards) becoming more prevalent.
-* A transition toward Transformer-based object detection, as seen in the increasing number of references from 2020 and 2021.
+The cited literature evolves over time, with older references becoming less common and recent research gaining prominence. The transition toward Transformer-based object detection is evident in the increasing number of papers using this approach. Conditional DETR relies heavily on classic work, while DAB-DETR focuses on more recent advancements.
 
 # Observations
-1. The average publication year for Conditional DETR is lower than that of DAB-DETR, suggesting a faster pace of research development.
-2. DETR's broad literature review indicates its potential impact on the field.
-3. Deformable DETR's reliance on previous work highlights the importance of building upon existing knowledge.
-4. The increasing number of references from 2020 and 2021 suggests a growing interest in Transformer-based object detection.
-5. Conditional DETR's oldest reference is from 1995, indicating a significant amount of classic work that has influenced its development.
-6. DAB-DETR's reliance on recent research may indicate a focus on cutting-edge techniques.
-7. The average publication year for Deformable DETR is similar to that of DETR, suggesting a comparable pace of research development.
+
+* Conditional DETR has a higher average publication year than DAB-DETR and DETR.
+* Deformable DETR has a lower total reference count compared to the other papers.
+* The oldest references cited are from 1955 (DETR) and 1995 (Conditional DETR).
+* The most recent references cited are from 2020 (DETR, Deformable DETR) and 2021 (DAB-DETR, Conditional DETR).
+* DAB-DETR has a more even distribution of publication years compared to the other papers.
 
 # Conclusion
-The reference analysis reveals the historical context and research trends in Conditional DETR, DAB-DETR, DETR, and Deformable DETR. It highlights the importance of building upon existing knowledge, the growing interest in Transformer-based object detection, and the varying levels of reliance on classic work and recent research among these papers.
+The reference analysis reveals that the papers have varying levels of reliance on classic work and recent research. DETR appears to have the broadest literature review, while Deformable DETR builds upon previous DETR-family work. The transition toward Transformer-based object detection is evident in the increasing number of papers using this approach.
         

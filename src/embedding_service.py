@@ -122,8 +122,8 @@ class EmbeddingService:
     """Generate normalized multilingual E5 embeddings."""
 
     def __init__(self):
-        self.device = "cpu"
-        # self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        # self.device = "cpu"
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
         result = self._load_working_model()

@@ -1,56 +1,32 @@
 # Introduction
-Object detection is a fundamental task in computer vision with wide applications, including self-driving cars, surveillance systems, and medical imaging. The goal of object detection is to predict a set of bounding boxes and category labels for each object of interest. Traditional object detection models often rely on complex attention mechanisms, which can be computationally expensive and difficult to train.
+Object detection is a fundamental task in computer vision that has numerous applications in various fields, including self-driving cars, surveillance systems, and medical imaging. Traditional object detection methods often rely on hand-crafted components, which can be computationally expensive and require extensive training epochs. The development of more efficient and effective object detection models is crucial for advancing the field.
 
-DETR-based methods have gained significant attention in recent years due to their simplicity, efficiency, and effectiveness. This survey aims to provide an overview of the latest advancements in DETR-based object detection methods, including Deformable DETR, Conditional DETR, and DAB-DETR.
+DETR-based methods have gained significant attention in recent years due to their simplicity, efficiency, and effectiveness. In this mini survey, we will summarize four research papers that propose new variants of DETR-based methods: DETR, Deformable DETR, Conditional DETR, and DAB-DETR.
 
 # Paper 1: DETR
-The first paper introduces the DETR (DEtection TRansformer) model, which views object detection as a direct set prediction problem. DETR uses a transformer encoder-decoder architecture to predict all objects at once and is trained end-to-end with a set loss function that performs bipartite matching between predicted and ground-truth objects.
-
-## Main Contribution
-The main contribution of this work is the development of a simple and efficient object detection model that achieves comparable results to state-of-the-art detectors on challenging benchmarks. DETR demonstrates accuracy and run-time performance on par with Faster R-CNN, while being more straightforward to implement and extend to other tasks such as panoptic segmentation.
+The first paper proposes the DETR (DEtection TRansformer) method, which views object detection as a direct set prediction problem. The proposed method uses a transformer encoder-decoder architecture with a bipartite matching loss function, which forces unique predictions via a permutation-invariant matching mechanism. This approach simplifies the detection pipeline by removing hand-designed components and allows for end-to-end training without requiring specialized libraries.
 
 # Paper 2: Deformable DETR
-The second paper proposes Deformable DETR, which replaces traditional Transformer attention modules with deformable attention modules. This approach mitigates slow convergence and high complexity issues in DETR.
-
-## Main Contribution
-Deformable DETR achieves better performance than DETR, especially on small objects, with 10 times less training epochs. The authors also propose two variants: iterative bounding box refinement and two-stage Deformable DETR.
+The second paper proposes the Deformable DETR method, which replaces traditional Transformer attention modules with deformable attention modules. This approach mitigates slow convergence and high complexity issues associated with traditional Transformers. The authors demonstrate that Deformable DETR achieves better performance on small objects compared to traditional DETR, with 10x less training epochs required.
 
 # Paper 3: Conditional DETR
-The third paper introduces a conditional cross-attention mechanism for object detection. This approach learns a spatial query from the corresponding reference point and decoder embedding, allowing it to mine spatial information while reducing dependence on content queries.
-
-## Main Contribution
-Our method simplifies attention mechanisms in object detection, reducing computational complexity and training difficulty. By learning a spatial query from reference points and decoder embeddings, we enable more efficient and effective object detection.
+The third paper proposes the Conditional DETR method, which introduces a conditional cross-attention mechanism that separates spatial and content queries. This approach reduces the dependence on content queries, making object detection easier to train. By learning a spatial query, the model can accurately localize distinct regions and reduce the spatial range of content queries.
 
 # Paper 4: DAB-DETR
-The fourth paper proposes DAB-DETR, which uses dynamic anchor boxes for DETR (Detectron2). This approach introduces anchor boxes as queries, allowing for better positional prior with temperature tuning and size-modulated attention to account for objects of different scales.
-
-## Main Contribution
-Our method provides a deeper understanding of the roles of queries in DETR and improves the interpretability of this important submodule. We demonstrate that using dynamic anchor boxes can lead to better object detection results.
+The fourth paper proposes the DAB-DETR method, which uses dynamic anchor boxes for DETR. The proposed approach introduces size-modulated Gaussian kernels to account for objects of different scales and iterative anchor update to refine the anchor estimate. This work provides a deeper understanding of the roles of queries in DETR and improves the interpretability of this important submodule.
 
 # Method Comparison
+The comparison table shows that each method has its strengths and weaknesses. The main differences between the methods are:
 
-| Paper | Model | Dataset | Backbone | AP | AP50 | AP75 |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1    | DETR-R101 | COCO | R101 | 33.0 | - | - |
-| 2    | Deformable DETR | COCO 2017 test-dev set | ResNeXt-101 + DCN | 52.3 | 71.9 | 58.1 |
-| 3    | DAB-DETR | COCO-Instance | DC5-R50 | 43.8 | 39.4 | 36.9 |
-| 4    | DAB-DETR | COCO 2017 validation set | ResNet-50-DC5 | 45.8 | 63.1 | 44.9 |
+*   **AP**: Deformable DETR achieves the highest AP (52.3) on the COCO 2017 test-dev set, followed by DAB-DETR (45.8).
+*   **Backbone**: ResNeXt-101 + DCN is used in Deformable DETR, while ResNet-50-DC5 is used in DAB-DETR.
+*   **Dataset**: COCO 2017 test-dev set is used in Deformable DETR and DAB-DETR, while COCO-Instance is used in Conditional DETR.
 
-## Main Differences
-The main differences between the proposed methods are:
+# Research Progress
+The methods evolved from one paper to another by introducing new components and improving existing ones. For example, the introduction of deformable attention modules in Deformable DETR improved performance on small objects. The use of conditional cross-attention mechanisms in Conditional DETR reduced dependence on content queries, making object detection easier to train.
 
-* DETR and Deformable DETR use traditional Transformer attention modules, while Conditional DETR introduces a conditional cross-attention mechanism.
-* DAB-DETR uses dynamic anchor boxes for DETR (Detectron2), which improves the interpretability of this important submodule.
-
-## Research Progress
-The methods evolved from one paper to another by introducing new mechanisms and architectures. Deformable DETR improved upon DETR by mitigating slow convergence and high complexity issues. Conditional DETR simplified attention mechanisms in object detection, reducing computational complexity and training difficulty. DAB-DETR introduced dynamic anchor boxes for DETR (Detectron2), which led to better object detection results.
-
-## Experimental Comparison
-
-* AP: Deformable DETR achieved the highest AP on the COCO 2017 test-dev set with 52.3.
-* AP50 and AP75: Conditional DETR performed well on these metrics, achieving 71.9 and 58.1 respectively.
-* Backbone: ResNeXt-101 + DCN was used in Deformable DETR, while ResNet-50-DC5 was used in DAB-DETR.
-* Dataset: COCO 2017 test-dev set was used for Deformable DETR, while COCO-Instance and COCO 2017 validation set were used for Conditional DETR and DAB-DETR respectively.
+# Experimental Comparison
+The comparison table shows that each method has its strengths and weaknesses. Deformable DETR achieved the highest AP (52.3) on the COCO 2017 test-dev set, followed by DAB-DETR (45.8). The use of ResNeXt-101 + DCN as the backbone in Deformable DETR improved performance compared to ResNet-50-DC5 used in DAB-DETR.
 
 # Conclusion
-This survey provides an overview of the latest advancements in DETR-based object detection methods. The proposed methods have shown promising results, with Deformable DETR achieving the highest AP on the COCO 2017 test-dev set. The introduction of dynamic anchor boxes for DETR (Detectron2) has led to better object detection results. Future research directions include exploring more practical variants of end-to-end object detectors and improving the interpretability of attention mechanisms in object detection.
+In conclusion, this mini survey summarized four research papers that propose new variants of DETR-based methods. Each method has its strengths and weaknesses, but they all share the goal of improving object detection performance. The introduction of deformable attention modules, conditional cross-attention mechanisms, and dynamic anchor boxes improved performance on small objects, reduced dependence on content queries, and accounted for objects of different scales, respectively.
