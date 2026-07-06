@@ -1,8 +1,5 @@
 """
-llm_service.py
-
 Handles communication with the local Qwen model through Ollama.
-
 """
 
 from typing import List, Dict, Optional

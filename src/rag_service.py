@@ -1,17 +1,15 @@
 """
-rag_service.py
-
 Connects Retriever + LLM to create a full RAG system.
 """
 
 from typing import List, Dict, Any
 
-from retriever import search
-from llm_service import LLMService
-from embedding_service import EmbeddingService
+from src.retriever import search
+from src.llm_service import LLMService
+from src.embedding_service import EmbeddingService
 # from src.vector_store import open_collection
 import chromadb
-from vector_store import DB_PATH, COLLECTION_NAME
+from src.vector_store import DB_PATH, COLLECTION_NAME
 
 class RAGService:
 
