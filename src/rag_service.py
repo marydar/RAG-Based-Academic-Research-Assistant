@@ -41,14 +41,14 @@ class RAGService:
 
             context_parts.append(
                 f"""
-[Chunk {i}]
-Paper: {meta['paper_title']}
-Section: {meta['section']}
-Pages: {meta['page_start']} - {meta['page_end']}
+            [Chunk {i}]
+            Paper: {meta['paper_title']}
+            Section: {meta['section']}
+            Pages: {meta['page_start']} - {meta['page_end']}
 
-Text:
-{text}
-"""
+            Text:
+            {text}
+            """
             )
 
         return "\n".join(context_parts)
