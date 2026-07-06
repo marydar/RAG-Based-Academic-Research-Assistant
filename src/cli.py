@@ -49,7 +49,7 @@ def main():
 
     while True:
 
-        question = input("Ask your question:\n> ").strip()
+        question = input("\nAsk your question:\n> ").strip()
 
         if not question:
             continue
