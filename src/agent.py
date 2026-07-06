@@ -193,8 +193,9 @@ class Agent:
                 return {
                     "tool": "extract_experimental_results",
                     "answer": (
-                        "Experimental results have been extracted.\n"
-                        "results.csv has been generated."
+                        "Experimental results extracted successfully.\n\n"
+                        "Generated file:\n"
+                        "- data/outputs/results.csv"
                     ),
                     "sources": [],
                 }
@@ -211,14 +212,15 @@ class Agent:
                 self.comparer.run()
 
                 return {
-                    "tool": "compare_results",
-                    "answer": (
-                        "Comparison completed.\n"
-                        "comparison_table.csv and "
-                        "comparison_chart.png were generated."
-                    ),
-                    "sources": [],
-                }
+                "tool": "compare_results",
+                "answer": (
+                    "Comparison completed successfully.\n\n"
+                    "Generated files:\n"
+                    "- data/outputs/comparison_table.csv\n"
+                    "- data/outputs/comparison_chart.png"
+                ),
+                "sources": [],
+            }
             except Exception as e:
                 return {
                     "tool": "compare_results",
@@ -232,13 +234,14 @@ class Agent:
                 self.survey.run()
 
                 return {
-                    "tool": "generate_survey",
-                    "answer": (
-                        "Mini survey generated successfully.\n"
-                        "See mini_survey.md."
-                    ),
-                    "sources": [],
-                }
+                "tool": "generate_survey",
+                "answer": (
+                    "Mini survey generated successfully.\n\n"
+                    "Generated file:\n"
+                    "- data/outputs/mini_survey.md"
+                ),
+                "sources": [],
+            }
             except Exception as e:
                 return {
                     "tool": "generate_survey",
