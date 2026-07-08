@@ -27,3 +27,11 @@ data/model_cache_e5_v2/
 .idea/
 .DS_Store
 Thumbs.db
+
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+data/outputs/
+data/chroma_db/
