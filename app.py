@@ -1,434 +1,262 @@
-"""
-Streamlit UI for RAG-Based Academic Research Assistant.
-
-Place this file in the project root, next to:
-- src/
-- tools/
-- data/
-"""
-
-from __future__ import annotations
-
-import sys
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+import sys
+import uuid
 
 import pandas as pd
 import streamlit as st
 
-
-# ------------------------------------------------------------
-# Project paths
-# ------------------------------------------------------------
-
-PROJECT_ROOT = Path(__file__).resolve().parent
-SRC_DIR = PROJECT_ROOT / "src"
-TOOLS_DIR = PROJECT_ROOT / "tools"
-OUTPUT_DIR = PROJECT_ROOT / "data" / "outputs"
-
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-
-# ------------------------------------------------------------
-# Page configuration
-# ------------------------------------------------------------
+ROOT = Path(__file__).resolve().parent
+OUTPUTS = ROOT / "data" / "outputs"
+sys.path.insert(0, str(ROOT))
 
 st.set_page_config(
-    page_title="Academic Research Assistant",
-    page_icon="🎓",
+    page_title="Academic RAG",
+    page_icon="⚡",
     layout="wide",
 )
 
-
-# ------------------------------------------------------------
-# Output file mapping
-# ------------------------------------------------------------
-
-TOOL_OUTPUTS: Dict[str, List[str]] = {
-    "extract_experimental_results": [
-        "results.csv",
-    ],
-    "compare_results": [
-        "comparison_table.csv",
-        "comparison_chart.png",
-        "comparison_analysis.md",
-    ],
-    "generate_survey": [
-        "mini_survey.md",
-    ],
-    "find_research_gap": [
-        "research_gap.md",
-    ],
-    "compare_references": [
-        "reference_year_distribution.csv",
-        "reference_year_distribution.png",
-        "reference_comparison.md",
-    ],
-    "compare_limitations": [
-        "limitations_comparison.md",
-    ],
+st.markdown("""
+<style>
+.stApp {
+    background:
+        radial-gradient(circle at top left, rgba(0,229,255,.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(168,85,247,.15), transparent 30%),
+        #050712;
+    color: #eef7ff;
 }
-
-PAGE_OUTPUTS: Dict[str, List[str]] = {
-    "Experimental Results": [
-        "results.csv",
-    ],
-    "Comparison": [
-        "comparison_table.csv",
-        "comparison_chart.png",
-        "comparison_analysis.md",
-    ],
-    "Mini Survey": [
-        "mini_survey.md",
-    ],
-    "Research Gap": [
-        "research_gap.md",
-    ],
-    "References": [
-        "reference_year_distribution.csv",
-        "reference_year_distribution.png",
-        "reference_comparison.md",
-    ],
-    "Limitations": [
-        "limitations_comparison.md",
-    ],
+[data-testid="stSidebar"] {
+    background: #080d1c;
+    border-right: 1px solid rgba(0,229,255,.18);
 }
+.block-container { padding-top: 2rem; max-width: 1250px; }
+h1, h2, h3, p, label, span { color: #eef7ff !important; }
+.card {
+    background: rgba(15,23,42,.78);
+    border: 1px solid rgba(0,229,255,.18);
+    border-radius: 22px;
+    padding: 20px;
+    margin: 14px 0;
+    box-shadow: 0 0 32px rgba(0,229,255,.06);
+}
+.hero {
+    background:
+        linear-gradient(135deg, rgba(15,23,42,.92), rgba(10,12,24,.82)),
+        radial-gradient(circle at 15% 0%, rgba(0,229,255,.22), transparent 35%),
+        radial-gradient(circle at 85% 20%, rgba(168,85,247,.18), transparent 35%);
+    border: 1px solid rgba(0,229,255,.22);
+    border-radius: 28px;
+    padding: 30px;
+    margin-bottom: 22px;
+    box-shadow: 0 0 42px rgba(0,229,255,.08);
+}
+.hero h1 {
+    font-size: 3rem;
+    line-height: 1;
+    margin: 0;
+}
+.grad {
+    background: linear-gradient(90deg, #00e5ff, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.muted { color: #8ea4bf !important; }
+.pill {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(0,229,255,.10);
+    border: 1px solid rgba(0,229,255,.25);
+    color: #baf7ff !important;
+    font-weight: 700;
+}
+.stButton button, .stDownloadButton button {
+    border-radius: 999px !important;
+    border: 1px solid rgba(0,229,255,.35) !important;
+    background: linear-gradient(135deg, rgba(0,229,255,.20), rgba(168,85,247,.20)) !important;
+    color: white !important;
+    font-weight: 700 !important;
+}
+textarea, input {
+    background: rgba(8,13,28,.95) !important;
+    color: white !important;
+    border: 1px solid rgba(0,229,255,.22) !important;
+    border-radius: 16px !important;
+}
+[data-testid="stDataFrame"] {
+    border: 1px solid rgba(0,229,255,.16);
+    border-radius: 16px;
+    overflow: hidden;
+}
+</style>
+""", unsafe_allow_html=True)
 
-
-# ------------------------------------------------------------
-# Lazy Agent loader
-# ------------------------------------------------------------
 
 @st.cache_resource(show_spinner=False)
-def get_agent():
-    """
-    Load Agent only when it is actually needed.
-
-    Important:
-    The import is inside this function so Streamlit does not load Agent,
-    Ollama, ChromaDB, or embedding models at app startup.
-    """
+def load_agent():
     from src.agent import Agent
-
     return Agent()
 
 
-# ------------------------------------------------------------
-# Helper functions
-# ------------------------------------------------------------
-
-def output_path(filename: str) -> Path:
-    return OUTPUT_DIR / filename
+def path(name: str) -> Path:
+    return OUTPUTS / name
 
 
-def get_mime_type(path: Path) -> str:
-    suffix = path.suffix.lower()
-
-    if suffix == ".csv":
+def mime(p: Path) -> str:
+    if p.suffix == ".csv":
         return "text/csv"
-
-    if suffix == ".md":
+    if p.suffix == ".md":
         return "text/markdown"
-
-    if suffix == ".png":
+    if p.suffix == ".png":
         return "image/png"
-
     return "application/octet-stream"
 
 
-def show_download_button(path: Path, label: Optional[str] = None) -> None:
-    if not path.exists():
-        return
-
-    counter_key = "_download_button_counter"
-
-    if counter_key not in st.session_state:
-        st.session_state[counter_key] = 0
-
-    st.session_state[counter_key] += 1
-
-    unique_key = f"download_{path.name}_{st.session_state[counter_key]}"
-
+def download(p: Path):
     st.download_button(
-        label=label or f"Download {path.name}",
-        data=path.read_bytes(),
-        file_name=path.name,
-        mime=get_mime_type(path),
-        key=unique_key,
-    )
-
-def show_csv(path: Path) -> None:
-    try:
-        dataframe = pd.read_csv(path)
-    except Exception as error:
-        st.error(f"Could not read CSV file: {path.name}\n\n{error}")
-        return
-
-    st.dataframe(
-        dataframe,
-        width="stretch",
-        hide_index=True,
-    )
-
-    show_download_button(path)
-
-
-def show_markdown_file(path: Path) -> None:
-    try:
-        content = path.read_text(encoding="utf-8")
-    except Exception as error:
-        st.error(f"Could not read Markdown file: {path.name}\n\n{error}")
-        return
-
-    if not content.strip():
-        st.warning(f"{path.name} exists, but it is empty.")
-        return
-
-    st.markdown(content)
-    show_download_button(path)
-
-
-def show_image(path: Path) -> None:
-    st.image(
-        str(path),
+        "Download",
+        data=p.read_bytes(),
+        file_name=p.name,
+        mime=mime(p),
+        key=f"dl_{p.name}_{uuid.uuid4().hex}",
         width="stretch",
     )
 
-    show_download_button(path)
 
+def show_file(name: str):
+    p = path(name)
 
-def show_output_file(filename: str) -> None:
-    path = output_path(filename)
-
-    st.subheader(filename)
-
-    if not path.exists():
-        st.warning(f"{filename} was not found in: {OUTPUT_DIR}")
+    if not p.exists():
+        st.warning(f"{name} not found in data/outputs.")
         return
 
-    suffix = path.suffix.lower()
+    st.markdown(f'<div class="card"><h3>{name}</h3>', unsafe_allow_html=True)
 
-    if suffix == ".csv":
-        show_csv(path)
-    elif suffix == ".md":
-        show_markdown_file(path)
-    elif suffix in {".png", ".jpg", ".jpeg"}:
-        show_image(path)
+    if p.suffix == ".csv":
+        st.dataframe(pd.read_csv(p), width="stretch", hide_index=True)
+    elif p.suffix == ".png":
+        st.image(str(p), width="stretch")
+    elif p.suffix == ".md":
+        st.markdown(p.read_text(encoding="utf-8", errors="replace"))
     else:
-        st.info(f"File exists, but preview is not supported: {filename}")
-        show_download_button(path)
+        st.info("Preview is not available.")
+
+    download(p)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
-def show_output_files(filenames: Iterable[str]) -> None:
-    for filename in filenames:
-        show_output_file(filename)
-        st.divider()
+def files_for_tool(tool: str):
+    return {
+        "extract_experimental_results": ["results.csv"],
+        "compare_results": ["comparison_table.csv", "comparison_chart.png", "comparison_analysis.md"],
+        "generate_survey": ["mini_survey.md"],
+        "find_research_gap": ["research_gap.md"],
+        "compare_references": ["reference_year_distribution.csv", "reference_year_distribution.png", "reference_comparison.md"],
+        "compare_limitations": ["limitations_comparison.md"],
+    }.get(tool, [])
 
 
-def format_pages(pages: str) -> str:
-    if not pages:
-        return ""
-
-    if "-" not in pages:
-        return f"Page {pages}"
-
-    start, end = pages.split("-", maxsplit=1)
-
-    if start == end:
-        return f"Page {start}"
-
-    return f"Pages {start}-{end}"
-
-
-def show_sources(sources: List[Dict[str, Any]]) -> None:
+def show_sources(sources):
     if not sources:
         return
 
-    st.markdown("#### Sources")
+    rows = []
+    for s in sources:
+        rows.append({
+            "Paper": s.get("paper", ""),
+            "Section": str(s.get("section", "")).title(),
+            "Pages": s.get("pages", ""),
+        })
 
-    for source in sources:
-        paper = source.get("paper", "Unknown paper")
-        section = str(source.get("section", "Unknown section")).title()
-        pages = format_pages(str(source.get("pages", "")))
-
-        st.markdown(f"- **{paper}** | {section} | {pages}")
-
-
-def infer_tool_from_answer(result: Dict[str, Any]) -> str:
-    """
-    Some older tool outputs do not include the 'tool' key.
-    This function keeps the UI stable even before agent.py is patched.
-    """
-    tool = result.get("tool")
-
-    if tool:
-        return str(tool)
-
-    answer = str(result.get("answer", "")).lower()
-
-    if "research gap" in answer:
-        return "find_research_gap"
-
-    if "reference comparison" in answer:
-        return "compare_references"
-
-    if "limitations comparison" in answer:
-        return "compare_limitations"
-
-    if "mini survey" in answer:
-        return "generate_survey"
-
-    if "comparison completed" in answer:
-        return "compare_results"
-
-    if "experimental results extracted" in answer:
-        return "extract_experimental_results"
-
-    return "rag"
+    st.markdown('<div class="card"><h3>Sources</h3>', unsafe_allow_html=True)
+    st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
-def show_tool_outputs(tool_name: str, answer: str) -> None:
-    files = TOOL_OUTPUTS.get(tool_name, [])
+def chat_page():
+    st.markdown("""
+    <div class="hero">
+        <span class="pill">Agent Powered · Neon Dark UI</span>
+        <h1>RAG-Based <span class="grad">Academic Assistant</span></h1>
+        <p class="muted">Ask research questions, generate academic outputs, and review CSV, PNG, and Markdown results in one dark workspace.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    if not files:
-        return
+    if "history" not in st.session_state:
+        st.session_state.history = []
 
-    if "failed" in answer.lower():
-        st.warning("The tool reported a failure, so generated files may be missing or outdated.")
+    q = st.text_area("Write your question", height=120)
 
-    with st.expander("Generated / related output files", expanded=True):
-        show_output_files(files)
-
-
-def normalize_result(raw_result: Any) -> Dict[str, Any]:
-    if isinstance(raw_result, dict):
-        return raw_result
-
-    return {
-        "tool": "unknown",
-        "answer": str(raw_result),
-        "sources": [],
-    }
-
-
-# ------------------------------------------------------------
-# UI sections
-# ------------------------------------------------------------
-
-def render_home_header() -> None:
-    st.title("🎓 RAG-Based Academic Research Assistant")
-    st.caption(
-        "Streamlit UI for asking questions, running tools, and viewing generated CSV, PNG, and Markdown outputs."
-    )
-
-
-def render_chat_page() -> None:
-    render_home_header()
-
-    st.markdown("## Chat / Ask Question")
-
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = []
-
-    question = st.text_area(
-        "Write your question",
-        placeholder="Example: Which paper achieved the highest AP?",
-        height=120,
-    )
-
-    ask_clicked = st.button(
-        "Ask",
-        type="primary",
-        width="stretch",
-    )
-
-    if ask_clicked:
-        clean_question = question.strip()
-
-        if not clean_question:
-            st.warning("Please write a question first.")
+    if st.button("Ask Agent", width="stretch", type="primary"):
+        if not q.strip():
+            st.warning("Write a question first.")
         else:
-            with st.spinner("Loading Agent and generating answer..."):
-                try:
-                    agent = get_agent()
-                    raw_result = agent.answer(clean_question)
-                    result = normalize_result(raw_result)
-                except Exception as error:
-                    st.error(f"Agent error:\n\n{error}")
-                    result = None
+            try:
+                with st.spinner("Agent is working..."):
+                    result = load_agent().answer(q.strip())
 
-            if result:
-                st.session_state.chat_history.append(
-                    {
-                        "question": clean_question,
-                        "result": result,
-                    }
-                )
+                st.session_state.history.insert(0, {
+                    "question": q.strip(),
+                    "result": result,
+                })
 
-    if not st.session_state.chat_history:
-        st.info("Ask a question to see the answer here.")
-        return
+            except Exception as e:
+                st.error(f"Agent error: {e}")
 
-    st.markdown("## Conversation")
-
-    for item in reversed(st.session_state.chat_history):
-        user_question = item["question"]
-        result = item["result"]
-
-        tool_name = infer_tool_from_answer(result)
-        answer = str(result.get("answer", "No answer returned."))
+    for item in st.session_state.history:
+        result = item["result"] if isinstance(item["result"], dict) else {}
+        tool = result.get("tool", "unknown")
+        answer = result.get("answer", str(item["result"]))
         sources = result.get("sources", [])
 
-        with st.container(border=True):
-            st.markdown("#### Question")
-            st.markdown(user_question)
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown("#### Question")
+        st.write(item["question"])
+        st.markdown("#### Executed Tool")
+        st.markdown(f'<span class="pill">{tool}</span>', unsafe_allow_html=True)
+        st.markdown("#### Answer")
+        st.markdown(answer)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            st.markdown("#### Executed Tool")
-            st.code(tool_name)
+        show_sources(sources)
 
-            if result.get("used_fallback"):
-                st.warning("RAG did not find enough evidence, so the fallback LLM answer was used.")
-
-            st.markdown("#### Answer")
-            st.markdown(answer)
-
-            show_sources(sources)
-            show_tool_outputs(tool_name, answer)
+        for f in files_for_tool(tool):
+            show_file(f)
 
 
-def render_static_output_page(page_name: str) -> None:
-    render_home_header()
-    st.markdown(f"## {page_name}")
-
-    st.caption(f"Reading files from: `{OUTPUT_DIR}`")
-    show_output_files(PAGE_OUTPUTS[page_name])
+def output_page(title: str, files: list[str]):
+    st.title(title)
+    for f in files:
+        show_file(f)
 
 
-# ------------------------------------------------------------
-# Sidebar navigation
-# ------------------------------------------------------------
+with st.sidebar:
+    st.markdown("## ⚡ Academic RAG")
+    st.caption("Research assistant dashboard")
+    page = st.radio(
+        "Navigation",
+        [
+            "Chat",
+            "Experimental Results",
+            "Comparison",
+            "Mini Survey",
+            "Research Gap",
+            "References",
+            "Limitations",
+        ],
+    )
+    st.caption(str(OUTPUTS))
 
-pages = [
-    "Chat / Ask Question",
-    "Experimental Results",
-    "Comparison",
-    "Mini Survey",
-    "Research Gap",
-    "References",
-    "Limitations",
-]
-
-selected_page = st.sidebar.radio(
-    "Navigation",
-    pages,
-)
-
-st.sidebar.divider()
-st.sidebar.markdown("### Output folder")
-st.sidebar.code(str(OUTPUT_DIR))
-
-if selected_page == "Chat / Ask Question":
-    render_chat_page()
-else:
-    render_static_output_page(selected_page)
+if page == "Chat":
+    chat_page()
+elif page == "Experimental Results":
+    output_page("Experimental Results", ["results.csv"])
+elif page == "Comparison":
+    output_page("Comparison", ["comparison_table.csv", "comparison_chart.png", "comparison_analysis.md"])
+elif page == "Mini Survey":
+    output_page("Mini Survey", ["mini_survey.md"])
+elif page == "Research Gap":
+    output_page("Research Gap", ["research_gap.md"])
+elif page == "References":
+    output_page("References", ["reference_year_distribution.csv", "reference_year_distribution.png", "reference_comparison.md"])
+elif page == "Limitations":
+    output_page("Limitations", ["limitations_comparison.md"])
