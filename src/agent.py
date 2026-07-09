@@ -282,24 +282,75 @@ class Agent:
                 }
                 
         elif action == "find_research_gap":
-
             tool = ResearchGapFinder()
+            try:
+                tool.run()
 
-            return tool.run()
+                return {
+                "tool": "find_research_gap",
+                "answer": (
+                    "Research gap analysis completed successfully.\n\n"
+                    "Generated file:\n"
+                    "- data/outputs/research_gap.md"
+                ),
+                "sources": [],
+                }
+            except Exception as e:
+                return {
+                    "tool": "find_research_gap",
+                    "answer": f"generation failed:\n{e}",
+                    "sources": [],
+                }
+
 
 
         elif action == "compare_references":
 
             tool = ReferenceComparer()
+            try:
+                tool.run()
 
-            return tool.run()
+                return {
+                "tool": "compare_references",
+                "answer": (
+                    "Reference comparison completed successfully.\n\n"
+                    "Generated files:\n"
+                    "- data/outputs/reference_year_distribution.csv\n"
+                    "- data/outputs/reference_year_distribution.png\n"
+                    "- data/outputs/reference_comparison.md"
+                ),
+                "sources": [],
+                }
+            except Exception as e:
+                return {
+                    "tool": "compare_references",
+                    "answer": f"generation failed:\n{e}",
+                    "sources": [],
+                }
 
 
         elif action == "compare_limitations":
 
             tool = LimitationsComparer()
+            try:
+                tool.run()
+                
+                return {
+                "tool": "compare_limitations",
+                "answer": (
+                    "Limitations comparison completed successfully.\n\n"
+                    "Generated file:\n"
+                    "- data/outputs/limitations_comparison.md"
+                ),
+                "sources": [],
+                }
+            except Exception as e:
+                return {
+                    "tool": "compare_limitations",
+                    "answer": f"generation failed:\n{e}",
+                    "sources": [],
+                }
 
-            return tool.run()
 
         return self.execute_action(
             "rag",

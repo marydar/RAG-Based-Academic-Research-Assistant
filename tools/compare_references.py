@@ -402,8 +402,6 @@ class ReferenceComparer:
             dataframe,
         )
         
-        year_table = self.dataframe_to_markdown(dataframe)
-
         context = self.build_context(
             statistics,
         )
@@ -415,22 +413,10 @@ class ReferenceComparer:
         report = self.llm.chat(
             prompt
         )
-        clean_report = "\n".join(
-            line.lstrip()
-            for line in report.splitlines()
-        )
-
-        final_markdown = f"""# Publication Year Distribution
-
-        {year_table}
-
-        ---
-
-        {clean_report}
-        """
+        
 
         self.save_markdown(
-            final_markdown
+            report
         )
 
         return {
