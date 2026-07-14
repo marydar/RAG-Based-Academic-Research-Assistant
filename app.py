@@ -4,10 +4,22 @@ import uuid
 
 import pandas as pd
 import streamlit as st
+from streamlit_mic_recorder import mic_recorder
 
 ROOT = Path(__file__).resolve().parent
 OUTPUTS = ROOT / "data" / "outputs"
 sys.path.insert(0, str(ROOT))
+
+from src.voice.speech_to_text import SpeechRecognizer
+
+TEMP_DIR = ROOT / "data" / "temp"
+
+TEMP_DIR.mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
+TEMP_AUDIO = TEMP_DIR / "voice.wav"
 
 st.set_page_config(
     page_title="Academic RAG",
@@ -96,6 +108,10 @@ def load_agent():
     from src.agent import Agent
     return Agent()
 
+@st.cache_resource(show_spinner=False)
+def load_speech_recognizer():
+    return SpeechRecognizer()
+
 
 def path(name: str) -> Path:
     return OUTPUTS / name
@@ -183,8 +199,84 @@ def chat_page():
 
     if "history" not in st.session_state:
         st.session_state.history = []
+        
+    #-------------voice and text input-------------
 
-    q = st.text_area("Write your question", height=120)
+
+    if "question" not in st.session_state:
+        st.session_state.question = ""
+
+    if "recognized_text" not in st.session_state:
+        st.session_state.recognized_text = ""
+
+    # If Whisper recognized something on the previous run,
+    # copy it into the textbox BEFORE creating the widget.
+    if st.session_state.recognized_text:
+        st.session_state.question = st.session_state.recognized_text
+        st.session_state.recognized_text = ""
+
+    q = st.text_area(
+        "Write your question",
+        key="question",
+        height=120,
+    )
+
+    st.markdown("""
+        <div class="card">
+        <h3>🎤 Voice Assistant</h3>
+        <p class="muted">
+        Record your question in English or Persian.
+        The audio will be transcribed before being sent to the agent.
+        </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    audio = mic_recorder(
+        start_prompt="🎙️ Start Recording",
+        stop_prompt="⏹️ Stop Recording",
+        key="voice",
+    )
+
+    if (
+        audio is not None
+        and audio["id"] != st.session_state.get("last_audio_id")
+    ):
+
+        st.session_state.last_audio_id = audio["id"]
+
+        with TEMP_AUDIO.open("wb") as file:
+            file.write(audio["bytes"])
+
+        with st.spinner("🎤 Transcribing..."):
+            result = load_speech_recognizer().transcribe(
+                TEMP_AUDIO
+            )
+
+        TEMP_AUDIO.unlink(
+            missing_ok=True,
+        )
+
+        if not result["text"]:
+
+            st.warning("No speech detected.")
+
+        else:
+
+            st.session_state.recognized_text = result["text"]
+
+            st.session_state.detected_language = (
+                f"{result['language']} "
+                f"({result['probability']:.2f})"
+            )
+
+            st.rerun()
+
+    if "detected_language" in st.session_state:
+        st.success(
+            f"Detected language: {st.session_state.detected_language}"
+        )
+
+    #---------------------------------------------
 
     if st.button("Ask Agent", width="stretch", type="primary"):
         if not q.strip():
