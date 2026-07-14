@@ -30,7 +30,7 @@ class SpeechRecognizer:
 
     def __init__(
         self,
-        model_size: str = "small",
+        model_size: str = "medium",
     ):
         """
         Initialize Whisper model.
