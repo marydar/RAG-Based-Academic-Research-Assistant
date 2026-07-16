@@ -4,6 +4,8 @@ A local Retrieval-Augmented Generation (RAG) system for analyzing academic paper
 
 The entire system runs locally using **Ollama**, **ChromaDB**, and **Faster-Whisper**, providing an offline academic assistant with optional voice interaction.
 
+![images](images/main.png)
+
 ---
 
 # Features
@@ -33,6 +35,24 @@ Supported tools:
 * Limitation Comparison
 
 If no specialized tool is appropriate, the agent automatically falls back to standard RAG question answering.
+
+## Examples
+
+- Experimental Result Extraction
+
+![exp](images/exp.png)
+
+- Compare Limitations
+
+![minit](images/limit.png)
+
+- Compare Refrences
+  
+![ref](images/ref.png)
+
+- Rag
+  
+![rag](images/rag.png)
 
 ---
 
